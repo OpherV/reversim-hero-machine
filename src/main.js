@@ -11,7 +11,7 @@ let shapes;
 function createBall() {
     const ball = phaserContext.matter.add.sprite(100, 50, 'ball', null, {
         restitution: 0.9,
-        friction: 0.005,
+        friction: 0.002,
         circleRadius: 15,
     });
     ball.scale = 2/3;
@@ -41,9 +41,9 @@ function createBook(x, y, w, h){
 function addStatic(x, y, w, h, options = {}){
     const origin = options.group?.origin || {x: 0, y: 0};
 
-    let rect;
+    let obj;
     if (options.sprite){
-        rect = phaserContext.matter.add.sprite(origin.x + x, origin.y + y, options.sprite, null, {
+        obj = phaserContext.matter.add.sprite(origin.x + x, origin.y + y, options.sprite, null, {
             isStatic: true,
             mass: Infinity,
             inertia: Infinity,
@@ -55,7 +55,7 @@ function addStatic(x, y, w, h, options = {}){
         }
         )
     } else {
-        rect = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, w, h, {
+        obj = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, w, h, {
             isStatic: true,
             mass: Infinity,
             inertia: Infinity,
@@ -83,8 +83,9 @@ function addStatic(x, y, w, h, options = {}){
         }
 
 
-        rect.relativePosition = {x: x, y: y};
-        rect.group = group;
+        let body = obj.body ?? obj;
+        body.relativePosition = {x: x, y: y};
+        body.group = group;
     }
 
 }
