@@ -22,6 +22,13 @@ function createCoffeeCup() {
         label: 'coffeeCup',
         shape: shapes.Cup
     });
+
+    // Add properties to track cup state
+    coffeeCup.hasCoffee = true;
+    coffeeCup.lastAngle = 0;
+    coffeeCup.creationTime = Date.now();
+
+    return coffeeCup;
 }
 
 function createBook(x, y, w, h){
@@ -79,6 +86,48 @@ function addStatic(x, y, w, h, options = {}){
         rect.relativePosition = {x: x, y: y};
         rect.group = group;
     }
+
+}
+
+function createCoffeeSplash(coffeeCup, collisionNormal) {
+    const x = coffeeCup.position.x;
+    const y = coffeeCup.position.y;
+    const magnitude = Math.sqrt(collisionNormal.x * collisionNormal.x + collisionNormal.y * collisionNormal.y);
+    // console.log(`createCoffeeSplash called at position (${x}, ${y}) with normal (${collisionNormal.x}, ${collisionNormal.y}) magnitude: ${magnitude}`);
+
+    // Calculate the splash direction (opposite to the collision normal)
+    // const splashAngle = Phaser.Math.RadToDeg(Math.atan2(collisionNormal.y, collisionNormal.x)) + coffeeCup.angle + 180;
+    const splashAngle = Phaser.Math.RadToDeg(coffeeCup.angle) - 90;
+    // console.log(`Splash angle: ${splashAngle} degrees`);
+
+
+    const emitter = phaserContext.add.particles(x, y, 'coffeeParticle', {
+        speed: { min: 160, max: 200 },
+        angle: {
+            min: splashAngle - 30,
+            max: splashAngle + 30
+        }, // Spray in the direction opposite to collision
+        scale: { start: 0.6, end: 0.1 },
+        lifespan: { min: 600, max: 1000 },
+        quantity: 30,
+        frequency: 20, // Emit particles more frequently for a more liquid-like effect
+        tint: [0x5c3a21, 0x4a2e1b, 0x6e4a31], // Multiple brown shades for more realistic coffee
+        gravityY: 400,
+        alpha: { start: 0.8, end: 0 }, // Fade out for more liquid-like appearance
+        blendMode: 'SCREEN', // Add blend mode for a more liquid-like glow
+        emitZone: {
+            type: 'edge',
+            source: new Phaser.Geom.Circle(0, -5, 5),
+            quantity: 30,
+            yoyo: false
+        }
+    });
+    emitter.setDepth(-1); // Set the emitter's depth behind the coffee cup
+
+    // Stop emitting after a short time (one-time splash)
+    phaserContext.time.delayedCall(150, () => {
+        emitter.stop();
+    });
 
 }
 
@@ -171,6 +220,9 @@ const config = {
                 this.load.image('keyboard', '/images/Keyboard.png');
                 this.load.json('shapes', 'assets/shapes.json');
 
+                // Add coffee splash particle
+                this.load.image('coffeeParticle', '/images/coffeeParticle.png');
+                // Note: You need to create a small brown circle image and save it as coffeeParticle.png in the public/images directory
         },
 
         create() {
@@ -179,6 +231,44 @@ const config = {
             registerStaticItemDrag();
 
             shapes = this.cache.json.get('shapes');
+
+
+            // Add collision detection for coffee cups
+            this.matter.world.on('collisionstart', (event) => {
+                event.pairs.forEach(({ bodyA, bodyB, collision }) => {
+                    let coffeeCup, otherBody;
+                    bodyA = bodyA.parent ?? bodyA;
+                    bodyB = bodyB.parent ?? bodyB;
+
+                    if (bodyA.label === 'coffeeCup' && bodyA.gameObject && bodyA.gameObject.hasCoffee) {
+                        coffeeCup = bodyA;
+                        otherBody = bodyB;
+                    } else if (bodyB.label === 'coffeeCup' && bodyB.gameObject && bodyB.gameObject.hasCoffee) {
+                        coffeeCup = bodyB;
+                        otherBody = bodyA;
+                    }
+
+                    // If a coffee cup with coffee collided with something
+                    if (coffeeCup && otherBody) {
+                        // Check if the coffee cup is old enough to produce a splash effect (2000ms = 2 seconds)
+                        const minCupAge = 2000; // milliseconds
+                        const cupAge = Date.now() - coffeeCup.gameObject.creationTime;
+
+                        if (cupAge >= minCupAge) {
+                            // Calculate collision normal (direction from coffee cup to other body)
+                            const collisionNormal = {
+                                x: coffeeCup.velocity.x,
+                                y: coffeeCup.velocity.y
+                            };
+
+                            // const collisionPoint = collision.supports[0] || coffeeCup.position;
+                            createCoffeeSplash(coffeeCup, collisionNormal);
+
+                            coffeeCup.gameObject.hasCoffee = false;
+                        }
+                    }
+                });
+            });
 
             // paddles
             phaserContext.matter.add.rectangle(100, 200, 150, 10, {
@@ -258,10 +348,15 @@ const config = {
             this.matter.world.engine.world.bodies.forEach((body) => {
                 const {x, y} = body.position;
 
+                // Remove bodies that are out of bounds
                 if (x < 0 || x > phaserContext.game.config.width || y < 0 || y > phaserContext.game.config.height) {
                     phaserContext.matter.world.remove(body);
                 }
             });
+
+            // Clean up particles when no longer needed
+            // Note: We don't need to manually clean up particle emitters
+            // Phaser handles this automatically when emitters are stopped
         }
     }
 };
