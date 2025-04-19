@@ -2,20 +2,25 @@ import Phaser from "phaser";
 import {initConveyorBelt} from "./ConveyorBelt.js";
 const Matter = Phaser.Physics.Matter.Matter
 
+const debug = true;
+
 let phaserContext;
 const groups = []
+let shapes;
 
 function createBall() {
-    const ball = phaserContext.matter.add.circle(100, 50, 10, {
+    const ball = phaserContext.matter.add.sprite(100, 50, 'ball', null, {
         restitution: 0.9,
-        friction: 0.005
+        friction: 0.005,
+        circleRadius: 15,
     });
+    ball.scale = 2/3;
 }
 
 function createCoffeeCup() {
-    const coffeeCup = phaserContext.matter.add.rectangle(250, 595, 40, 25, {
-        friction: 0,
-        label: 'coffeeCup'
+    const coffeeCup = phaserContext.matter.add.sprite(230, 590, 'coffeeCup', null, {
+        label: 'coffeeCup',
+        shape: shapes.Cup
     });
 }
 
@@ -26,14 +31,30 @@ function createBook(x, y, w, h){
     });
 }
 
-function addStaticRect(x, y, w, h, options = {}){
+function addStatic(x, y, w, h, options = {}){
     const origin = options.group?.origin || {x: 0, y: 0};
 
-    const rect = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, w, h, {
-        isStatic: true,
-        mass: Infinity,
-        inertia: Infinity,
-    });
+    let rect;
+    if (options.sprite){
+        rect = phaserContext.matter.add.sprite(origin.x + x, origin.y + y, options.sprite, null, {
+            isStatic: true,
+            mass: Infinity,
+            inertia: Infinity,
+            shape: options.shape ?? {
+                type: 'rectangle',
+                width: w,
+                height: h
+            }
+        }
+        )
+    } else {
+        rect = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, w, h, {
+            isStatic: true,
+            mass: Infinity,
+            inertia: Infinity,
+        });
+    }
+
 
     if (options.group) {
         const group = options.group;
@@ -69,9 +90,11 @@ function registerStaticItemDrag(){
         const pointerPosition = {x: pointer.worldX, y: pointer.worldY};
         const bodiesUnderPointer = phaserContext.matter.intersectPoint(pointerPosition.x, pointerPosition.y); // Retrieve all bodies under pointer
         draggableObject = bodiesUnderPointer.find(body => body.isStatic); // Pick the static one
-        pointerOffset = {
-            x: pointer.x - draggableObject.position.x,
-            y: pointer.y - draggableObject.position.y
+        if (draggableObject) {
+            pointerOffset = {
+                x: pointer.x - draggableObject.position.x,
+                y: pointer.y - draggableObject.position.y
+            }
         }
     });
 
@@ -130,23 +153,32 @@ const config = {
     type: Phaser.AUTO,
     width: 1100,
     height: 1100,
+    transparent: true,
     physics: {
         default: "matter",
         matter: {
-            debug: {
+            debug: debug? {
                 // showCollisions: true,
-            }
+            } : null
         }
     },
     scene: {
         preload() {
-            // this.load.image('ball', '/images/ball.png');
-            },
-        
+                this.load.image('ball', '/images/ball.png');
+                this.load.image('coffeeCup', '/images/Cup.png');
+                this.load.image('coffeeMachine', '/images/CoffeeMachine.png');
+                this.load.image('computer', '/images/Computer.png');
+                this.load.image('keyboard', '/images/Keyboard.png');
+                this.load.json('shapes', 'assets/shapes.json');
+
+        },
+
         create() {
             phaserContext = this
             phaserContext.matter.add.mouseSpring();
             registerStaticItemDrag();
+
+            shapes = this.cache.json.get('shapes');
 
             // paddles
             phaserContext.matter.add.rectangle(100, 200, 150, 10, {
@@ -195,9 +227,10 @@ const config = {
 
 
             // Coffee Machine
-            addStaticRect(180, 500, 200, 50);
-            addStaticRect(180, 650, 200, 50);
-            addStaticRect(140, 575, 120, 200);
+            addStatic(180, 500, 200, 50);
+            addStatic(180, 650, 200, 50);
+            addStatic(140, 575, 120, 200);
+
 
             this.time.addEvent({
                 delay: 2200,
@@ -210,9 +243,9 @@ const config = {
                 origin: {x: 685, y: 825},
                 visible: true
             }
-            addStaticRect(149, 141, 300, 10, { group: computerGroup }); // surface
-            addStaticRect(227, 54, 140, 150, { group: computerGroup }); // computer
-            addStaticRect(48, 119, 100, 20, { group: computerGroup }); // keyboard
+            addStatic(149, 141, 300, 10, { group: computerGroup }); // surface
+            addStatic(227, 60, 140, 150, { group: computerGroup, sprite: "computer", shape: shapes.Computer });
+            addStatic(48, 123, 100, 20, { group: computerGroup, sprite: "keyboard", shape: shapes.Keyboard }); // keyboard
 
             this.time.addEvent({
                 delay: 1500,

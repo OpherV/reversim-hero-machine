@@ -1,5 +1,4 @@
-import Phaser from "phaser";
-const Matter = Phaser.Physics.Matter.Matter
+const conveyorSpeed = 0.5;
 
 export function initConveyorBelt(phaserContext) {
 
@@ -17,7 +16,10 @@ export function initConveyorBelt(phaserContext) {
             }
 
             if (object && object.isStatic === false) {
-                Matter.Body.setVelocity(object, {x: object.velocity.x + 2, y: object.velocity.y});
+                let objectToMove = object.parent ?? object;
+                objectToMove.originalFriction = objectToMove.friction;
+                objectToMove.friction = 0;
+                // Matter.Body.setVelocity(object, {x: object.velocity.x + 2, y: object.velocity.y});
             }
         });
     });
@@ -35,8 +37,8 @@ export function initConveyorBelt(phaserContext) {
             }
 
             if (object && object.isStatic === false) {
-                // this.phaserContext.matter.body.applyForce(object, object.position, { x: 1, y: 0 });
-                object.friction = 0.5;
+                let objectToMove = object.parent ?? object;
+                objectToMove.friction = objectToMove.originalFriction;
             }
         });
     });
@@ -54,9 +56,15 @@ export function initConveyorBelt(phaserContext) {
             }
 
             if (object && object.isStatic === false) {
-                // this.matter.body.applyForce(object, object.position, { x: 1, y: 0 });
-                Matter.Body.setVelocity(object, {x: 1, y: object.velocity.y});
+                let objectToMove = object.parent ?? object;
+
+                phaserContext.matter.body.setVelocity(objectToMove, {
+                    x: conveyorSpeed,
+                    y: object.velocity.y
+                });
+
             }
         });
     });
+
 }
