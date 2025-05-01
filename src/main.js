@@ -1,6 +1,8 @@
 import Phaser from "phaser";
-import {initConveyorBelt} from "./ConveyorBelt.js";
-import {initCoffee} from "./Coffee.js";
+import { initConveyorBelt } from "./ConveyorBelt.js";
+import { initCoffee } from "./Coffee.js";
+import { initPaddles } from "./Paddles.js";
+import {initBookStack} from "./BookStack.js";
 const Matter = Phaser.Physics.Matter.Matter
 
 const debug = true;
@@ -16,14 +18,6 @@ function createBall() {
         circleRadius: 15,
     });
     ball.scale = 2/3;
-}
-
-
-function createBook(x, y, w, h){
-    const book = phaserContext.matter.add.rectangle(x, y, w, h, {
-        // isStatic: true,
-        label: 'book',
-    });
 }
 
 function addStatic(x, y, w, h, options = {}){
@@ -166,9 +160,8 @@ const config = {
                 this.load.image('coffeeMachine', '/images/CoffeeMachine.png');
                 this.load.image('computer', '/images/Computer.png');
                 this.load.image('keyboard', '/images/Keyboard.png');
+                this.load.image('paddle', '/images/paddle.png');
                 this.load.json('shapes', 'assets/shapes.json');
-
-
                 this.load.image('coffeeParticle', '/images/coffeeParticle.png');
         },
 
@@ -181,42 +174,7 @@ const config = {
 
 
 
-            // paddles
-            phaserContext.matter.add.rectangle(100, 200, 150, 10, {
-                angle: Phaser.Math.DegToRad(30),
-                isStatic: true,
-                mass: Infinity,
-                inertia: Infinity,
-            });
-            phaserContext.matter.add.rectangle(300, 300, 150, 10, {
-                angle: Phaser.Math.DegToRad(-30),
-                isStatic: true,
-                mass: Infinity,
-                inertia: Infinity,
-            });
-
-            const stackOrigin = {x: 540, y: 850 };
-            phaserContext.matter.add.rectangle(stackOrigin.x, stackOrigin.y, 150, 10, {
-                isStatic: true,
-                mass: Infinity,
-                inertia: Infinity,
-            });
-
-            [
-                [0, 100, 15],
-                [20, 100, 15],
-                [-10, 100, 20],
-                [10, 100, 30],
-                [14, 100, 10],
-                [20, 100, 20],
-                [40, 100, 15],
-            ].reduce((prevY, [xOffset, bookWidth, bookHeight]) => {
-                const x = stackOrigin.x + xOffset;
-                const y = prevY - (bookHeight / 2);
-                createBook(x, y, bookWidth, bookHeight);
-                return y - (bookHeight / 2);
-            }, stackOrigin.y - 5); // should use paddle height
-
+           initPaddles(phaserContext, shapes);
 
             // Create conveyor belt
             const conveyor = this.matter.add.rectangle(350, 615, 300, 20, {
@@ -228,6 +186,8 @@ const config = {
 
             // Initialize coffee-related functionality
             initCoffee(this, shapes)
+
+            initBookStack(phaserContext, shapes);
 
 
             // Computer
