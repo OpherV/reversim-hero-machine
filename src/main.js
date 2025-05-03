@@ -1,9 +1,10 @@
 import Phaser from "phaser";
 import { initConveyorBelt } from "./ConveyorBelt.js";
 import { initCoffee } from "./Coffee.js";
-import {createPaddle, initPaddles} from "./Paddles.js";
-import {initBookStack} from "./BookStack.js";
-import { addStatic, initUtils } from "./utils.js";
+import { initPaddles} from "./Paddles.js";
+import { initBookStack} from "./BookStack.js";
+import { initUtils } from "./utils.js";
+import { initComputer } from "./Computer.js";
 const Matter = Phaser.Physics.Matter.Matter
 
 const debug = true;
@@ -122,6 +123,10 @@ const config = {
             this.load.image('book5', '/images/book5.png');
             this.load.image('book6', '/images/book6.png');
             this.load.image('book7', '/images/book7.png');
+
+            this.load.image('smoke1', '/images/smoke1.png');
+            this.load.image('smoke2', '/images/smoke2.png');
+            this.load.image('smoke3', '/images/smoke3.png');
         },
 
         create() {
@@ -143,20 +148,9 @@ const config = {
 
             initConveyorBelt(this)
 
-            // Initialize coffee-related functionality
             initCoffee(this, shapes)
-
             initBookStack(phaserContext, shapes);
-
-            // Computer
-            const computerGroup = {
-                origin: {x: 665, y: 825},
-                visible: true
-            }
-
-            createPaddle(149, 141, 300, 10, 0, { group: computerGroup });
-            addStatic(227, 60, 140, 150, { group: computerGroup, sprite: "computer", shape: shapes.Computer });
-            addStatic(48, 123, 100, 20, { group: computerGroup, sprite: "keyboard", shape: shapes.Keyboard }); // keyboard
+            initComputer(generalContext, shapes);
 
             this.time.addEvent({
                 delay: 1500,
