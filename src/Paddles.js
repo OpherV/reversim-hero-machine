@@ -1,12 +1,14 @@
 // Paddle-related functionality
-import { attachToPhysics } from './utils.js';
+import { addToGroup, attachToPhysics } from './utils.js';
 
 let phaserContext;
 let shapes;
 
-export function createPaddle(x, y, width, height, angle = 0) {
+export function createPaddle(x, y, width, height, angle = 0 , options = {}) {
+    const origin = options.group?.origin || {x: 0, y: 0};
+
     // Create the physics body for the paddle
-    const paddle = phaserContext.matter.add.rectangle(x, y, width, height, {
+    const paddle = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, width, height, {
         isStatic: true,
         mass: Infinity,
         inertia: Infinity,
@@ -25,6 +27,10 @@ export function createPaddle(x, y, width, height, angle = 0) {
         10, 10,         // left and right slice points (for 3-slice, we use equal values)
         0, 0            // top and bottom slice points (0 for no vertical slicing)
     );
+
+    if (options.group) {
+        addToGroup(options.group, paddle, x, y);
+    }
 
     // Attach the sprite to the physics body
     return attachToPhysics(paddle, sprite, { matchRotation: true });

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { initConveyorBelt } from "./ConveyorBelt.js";
 import { initCoffee } from "./Coffee.js";
-import { initPaddles } from "./Paddles.js";
+import {createPaddle, initPaddles} from "./Paddles.js";
 import {initBookStack} from "./BookStack.js";
 import { addStatic, initUtils } from "./utils.js";
 const Matter = Phaser.Physics.Matter.Matter
@@ -9,7 +9,10 @@ const Matter = Phaser.Physics.Matter.Matter
 const debug = true;
 
 let phaserContext;
-const groups = []
+let generalContext = {
+    phaserContext: null,
+    groups: []
+}
 let shapes;
 
 function createBall() {
@@ -122,11 +125,11 @@ const config = {
         },
 
         create() {
-            phaserContext = this
+            phaserContext = generalContext.phaserContext =  this;
             phaserContext.matter.add.mouseSpring();
             registerStaticItemDrag();
 
-            initUtils(phaserContext);
+            initUtils(generalContext);
 
             shapes = this.cache.json.get('shapes');
 
@@ -150,7 +153,8 @@ const config = {
                 origin: {x: 665, y: 825},
                 visible: true
             }
-            addStatic(149, 141, 300, 10, { group: computerGroup }); // surface
+
+            createPaddle(149, 141, 300, 10, 0, { group: computerGroup });
             addStatic(227, 60, 140, 150, { group: computerGroup, sprite: "computer", shape: shapes.Computer });
             addStatic(48, 123, 100, 20, { group: computerGroup, sprite: "keyboard", shape: shapes.Keyboard }); // keyboard
 

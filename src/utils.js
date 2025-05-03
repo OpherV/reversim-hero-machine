@@ -1,13 +1,11 @@
 // Utility functions for the game
 
+let generalContext;
 let phaserContext;
 
-/**
- * Initializes the utils module with the Phaser context
- * @param {Phaser.Scene} context - The Phaser scene context
- */
 export function initUtils(context) {
-    phaserContext = context;
+    generalContext = context;
+    phaserContext = context.phaserContext;
 }
 
 /**
@@ -84,34 +82,33 @@ export function addStatic(x, y, w, h, options = {}) {
     }
 
     if (options.group) {
-        const group = options.group;
-        const groups = phaserContext.groups || [];
-
-        if (!groups.includes(group)) {
-            if (phaserContext.groups) {
-                phaserContext.groups.push(group);
-            } else if (typeof groups.push === 'function') {
-                groups.push(group);
-            }
-            
-            const groupHandle = phaserContext.matter.add.circle(group.origin.x, group.origin.y, 10, {
-                isStatic: true,
-                mass: Infinity,
-                inertia: Infinity,
-                isSensor: true,
-                label: "groupOrigin",
-                render: {
-                    visible: options.group.visible,
-                    lineColor: 0xffff00
-                }
-            });
-            groupHandle.group = group;
-        }
-
-        let body = obj.body ?? obj;
-        body.relativePosition = {x: x, y: y};
-        body.group = group;
+        addToGroup(options.group, obj, x, y);
     }
-    
+
     return obj;
+}
+
+
+export function addToGroup(group, obj, x, y) {
+
+    if (!generalContext.groups.includes(group)){
+        generalContext.groups.push(group);
+        const groupHandle = phaserContext.matter.add.circle(group.origin.x, group.origin.y, 10, {
+            isStatic: true,
+            mass: Infinity,
+            inertia: Infinity,
+            isSensor: true,
+            label: "groupOrigin",
+            render: {
+                visible: group.visible,
+                lineColor: 0xffff00
+            }
+        });
+        groupHandle.group = group;
+    }
+
+
+    let body = obj.body ?? obj;
+    body.relativePosition = {x: x, y: y};
+    body.group = group;
 }
