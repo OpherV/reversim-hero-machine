@@ -3,6 +3,7 @@ import { initConveyorBelt } from "./ConveyorBelt.js";
 import { initCoffee } from "./Coffee.js";
 import { initPaddles } from "./Paddles.js";
 import {initBookStack} from "./BookStack.js";
+import { addStatic, initUtils } from "./utils.js";
 const Matter = Phaser.Physics.Matter.Matter
 
 const debug = true;
@@ -19,59 +20,6 @@ function createBall() {
     });
     ball.scale = 2/3;
 }
-
-function addStatic(x, y, w, h, options = {}){
-    const origin = options.group?.origin || {x: 0, y: 0};
-
-    let obj;
-    if (options.sprite){
-        obj = phaserContext.matter.add.sprite(origin.x + x, origin.y + y, options.sprite, null, {
-            isStatic: true,
-            mass: Infinity,
-            inertia: Infinity,
-            shape: options.shape ?? {
-                type: 'rectangle',
-                width: w,
-                height: h
-            }
-        }
-        )
-    } else {
-        obj = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, w, h, {
-            isStatic: true,
-            mass: Infinity,
-            inertia: Infinity,
-        });
-    }
-
-
-    if (options.group) {
-        const group = options.group;
-
-        if (!groups.includes(group)){
-            groups.push(group);
-            const groupHandle = phaserContext.matter.add.circle(group.origin.x, group.origin.y, 10, {
-                isStatic: true,
-                mass: Infinity,
-                inertia: Infinity,
-                isSensor: true,
-                label: "groupOrigin",
-                render: {
-                    visible: options.group.visible,
-                    lineColor: 0xffff00
-                }
-            });
-            groupHandle.group = group;
-        }
-
-
-        let body = obj.body ?? obj;
-        body.relativePosition = {x: x, y: y};
-        body.group = group;
-    }
-
-}
-
 
 function registerStaticItemDrag(){
     let draggableObject;
@@ -178,11 +126,11 @@ const config = {
             phaserContext.matter.add.mouseSpring();
             registerStaticItemDrag();
 
+            initUtils(phaserContext);
+
             shapes = this.cache.json.get('shapes');
 
-
-
-           initPaddles(phaserContext, shapes);
+            initPaddles(phaserContext, shapes);
 
             // Create conveyor belt
             const conveyor = this.matter.add.rectangle(380, 615, 330, 20, {
@@ -196,7 +144,6 @@ const config = {
             initCoffee(this, shapes)
 
             initBookStack(phaserContext, shapes);
-
 
             // Computer
             const computerGroup = {

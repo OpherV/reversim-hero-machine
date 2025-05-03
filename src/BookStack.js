@@ -30,7 +30,7 @@ function createBook(x, y, width, height, type, title) {
         text.setOrigin(0.5, 0.5); // Center the text
         
         // Attach the text to the book physics body
-        attachToPhysics(phaserContext, book, text, { matchRotation: true });
+        attachToPhysics(book, text, { matchRotation: true });
     }
     
     return book;

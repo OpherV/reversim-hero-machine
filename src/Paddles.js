@@ -26,11 +26,8 @@ export function createPaddle(x, y, width, height, angle = 0) {
         0, 0            // top and bottom slice points (0 for no vertical slicing)
     );
 
-    // Rotate the sprite to match the physics body
-    sprite.setRotation(angle);
-
     // Attach the sprite to the physics body
-    return attachToPhysics(phaserContext, paddle, sprite, { matchRotation: true });
+    return attachToPhysics(paddle, sprite, { matchRotation: true });
 }
 
 function createGamePaddles() {
