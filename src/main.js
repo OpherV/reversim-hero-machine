@@ -155,14 +155,22 @@ const config = {
     },
     scene: {
         preload() {
-                this.load.image('ball', '/images/ball.png');
-                this.load.image('coffeeCup', '/images/Cup.png');
-                this.load.image('coffeeMachine', '/images/CoffeeMachine.png');
-                this.load.image('computer', '/images/Computer.png');
-                this.load.image('keyboard', '/images/Keyboard.png');
-                this.load.image('paddle', '/images/paddle.png');
-                this.load.json('shapes', 'assets/shapes.json');
-                this.load.image('coffeeParticle', '/images/coffeeParticle.png');
+            this.load.image('ball', '/images/ball.png');
+            this.load.image('coffeeCup', '/images/Cup.png');
+            this.load.image('coffeeMachine', '/images/CoffeeMachine.png');
+            this.load.image('computer', '/images/Computer.png');
+            this.load.image('keyboard', '/images/Keyboard.png');
+            this.load.image('paddle', '/images/paddle.png');
+            this.load.json('shapes', 'assets/shapes.json');
+            this.load.image('coffeeParticle', '/images/coffeeParticle.png');
+            // Load book images
+            this.load.image('book1', '/images/book1.png');
+            this.load.image('book2', '/images/book2.png');
+            this.load.image('book3', '/images/book3.png');
+            this.load.image('book4', '/images/book4.png');
+            this.load.image('book5', '/images/book5.png');
+            this.load.image('book6', '/images/book6.png');
+            this.load.image('book7', '/images/book7.png');
         },
 
         create() {
@@ -177,7 +185,7 @@ const config = {
            initPaddles(phaserContext, shapes);
 
             // Create conveyor belt
-            const conveyor = this.matter.add.rectangle(350, 615, 300, 20, {
+            const conveyor = this.matter.add.rectangle(380, 615, 330, 20, {
                 isStatic: true,
                 label: 'conveyor'
             });
@@ -192,7 +200,7 @@ const config = {
 
             // Computer
             const computerGroup = {
-                origin: {x: 685, y: 825},
+                origin: {x: 665, y: 825},
                 visible: true
             }
             addStatic(149, 141, 300, 10, { group: computerGroup }); // surface

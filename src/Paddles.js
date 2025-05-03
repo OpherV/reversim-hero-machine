@@ -1,4 +1,5 @@
 // Paddle-related functionality
+import { attachToPhysics } from './utils.js';
 
 let phaserContext;
 let shapes;
@@ -28,14 +29,8 @@ export function createPaddle(x, y, width, height, angle = 0) {
     // Rotate the sprite to match the physics body
     sprite.setRotation(angle);
 
-    phaserContext.matter.world.on('afterupdate', () => {
-        sprite.x = paddle.position.x;
-        sprite.y = paddle.position.y;
-        sprite.rotation = paddle.angle;
-    });
-
-    // Return both the physics body and the sprite for reference
-    return { body: paddle, sprite: sprite };
+    // Attach the sprite to the physics body
+    return attachToPhysics(phaserContext, paddle, sprite, { matchRotation: true });
 }
 
 function createGamePaddles() {
@@ -51,4 +46,3 @@ export function initPaddles(context, shapesData) {
     // Create the game paddles
     createGamePaddles();
 }
-
