@@ -98,6 +98,9 @@ function registerPhysicsItemDrag(){
     let grabConstraint = null;
     let grabOffset = null;
 
+    // Ratio (0 to 1): how much of the center is 'no swing'. 0 = only center, 1 = whole shape
+    const centerNoSwingRatio = 0.4; // Tweak this value as needed
+
     phaserContext.input.on('pointerdown', (pointer) => {
         const pointerPosition = {x: pointer.worldX, y: pointer.worldY};
         const bodiesUnderPointer = phaserContext.matter.intersectPoint(pointerPosition.x, pointerPosition.y);
@@ -109,15 +112,42 @@ function registerPhysicsItemDrag(){
                 x: pointer.worldX - grabbedBody.position.x,
                 y: pointer.worldY - grabbedBody.position.y
             };
-            // Create a constraint between pointer and grab point on the body
-            grabConstraint = Matter.Constraint.create({
-                pointA: { x: pointer.worldX, y: pointer.worldY },
-                bodyB: grabbedBody,
-                pointB: { x: grabOffset.x, y: grabOffset.y },
-                length: 0,
-                stiffness: 0.2 // Feel free to tweak for more/less swing
-            });
-            phaserContext.matter.world.add(grabConstraint);
+
+            // Center of the body
+            const centerX = grabbedBody.position.x;
+            const centerY = grabbedBody.position.y;
+            // Distance from pointer to center
+            const dx = pointer.worldX - centerX;
+            const dy = pointer.worldY - centerY;
+            const distToCenter = Math.sqrt(dx * dx + dy * dy);
+            // Maximum possible radius (from center to farthest bound corner)
+            const bounds = grabbedBody.bounds;
+            const maxRadius = Math.max(
+                Math.abs(bounds.max.x - centerX),
+                Math.abs(bounds.min.x - centerX),
+                Math.abs(bounds.max.y - centerY),
+                Math.abs(bounds.min.y - centerY),
+                Math.sqrt(Math.pow(bounds.max.x - centerX, 2) + Math.pow(bounds.max.y - centerY, 2)),
+                Math.sqrt(Math.pow(bounds.min.x - centerX, 2) + Math.pow(bounds.min.y - centerY, 2)),
+                Math.sqrt(Math.pow(bounds.max.x - centerX, 2) + Math.pow(bounds.min.y - centerY, 2)),
+                Math.sqrt(Math.pow(bounds.min.x - centerX, 2) + Math.pow(bounds.max.y - centerY, 2))
+            );
+            const swingThreshold = centerNoSwingRatio * maxRadius;
+            if (distToCenter >= swingThreshold) {
+                // Only allow swing if grabbed outside the center circle
+                grabConstraint = Matter.Constraint.create({
+                    pointA: { x: pointer.worldX, y: pointer.worldY },
+                    bodyB: grabbedBody,
+                    pointB: { x: grabOffset.x, y: grabOffset.y },
+                    length: 0,
+                    stiffness: 0.2 // Feel free to tweak for more/less swing
+                });
+                phaserContext.matter.world.add(grabConstraint);
+            } else {
+                // No swing if grabbed from the center region
+                grabbedBody = null;
+                grabOffset = null;
+            }
         }
     });
 
