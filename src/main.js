@@ -5,6 +5,7 @@ import { initPaddles} from "./Paddles.js";
 import { initBookStack} from "./BookStack.js";
 import { initUtils } from "./utils.js";
 import { initComputer } from "./Computer.js";
+import {initFan} from "./Fan.js";
 const Matter = Phaser.Physics.Matter.Matter
 
 const debug = true;
@@ -107,14 +108,18 @@ const config = {
     },
     scene: {
         preload() {
+            this.load.json('shapes', 'assets/shapes.json');
             this.load.image('ball', '/images/ball.png');
             this.load.image('coffeeCup', '/images/Cup.png');
             this.load.image('coffeeMachine', '/images/CoffeeMachine.png');
             this.load.image('computer', '/images/Computer.png');
             this.load.image('keyboard', '/images/Keyboard.png');
             this.load.image('paddle', '/images/paddle.png');
-            this.load.json('shapes', 'assets/shapes.json');
             this.load.image('coffeeParticle', '/images/coffeeParticle.png');
+            this.load.image('fanBase', '/images/fanBase.png');
+            this.load.image('fanBlades', '/images/fanBlades.png');
+            this.load.image('windMachine', '/images/windMachine.png');
+
             // Load book images
             this.load.image('book1', '/images/book1.png');
             this.load.image('book2', '/images/book2.png');
@@ -151,6 +156,7 @@ const config = {
             initCoffee(this, shapes)
             initBookStack(phaserContext, shapes);
             initComputer(generalContext, shapes);
+            initFan(generalContext, shapes);
 
             this.time.addEvent({
                 delay: 1500,
