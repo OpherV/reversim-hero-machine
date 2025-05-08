@@ -93,6 +93,52 @@ function registerStaticItemDrag(){
 
 }
 
+function registerPhysicsItemDrag(){
+    let grabbedBody = null;
+    let grabConstraint = null;
+    let grabOffset = null;
+
+    phaserContext.input.on('pointerdown', (pointer) => {
+        const pointerPosition = {x: pointer.worldX, y: pointer.worldY};
+        const bodiesUnderPointer = phaserContext.matter.intersectPoint(pointerPosition.x, pointerPosition.y);
+        // Only grab dynamic (not static) bodies
+        grabbedBody = bodiesUnderPointer.find(body => !body.isStatic);
+        if (grabbedBody) {
+            // Calculate offset from body center to grab point
+            grabOffset = {
+                x: pointer.worldX - grabbedBody.position.x,
+                y: pointer.worldY - grabbedBody.position.y
+            };
+            // Create a constraint between pointer and grab point on the body
+            grabConstraint = Matter.Constraint.create({
+                pointA: { x: pointer.worldX, y: pointer.worldY },
+                bodyB: grabbedBody,
+                pointB: { x: grabOffset.x, y: grabOffset.y },
+                length: 0,
+                stiffness: 0.2 // Feel free to tweak for more/less swing
+            });
+            phaserContext.matter.world.add(grabConstraint);
+        }
+    });
+
+    phaserContext.input.on('pointermove', (pointer) => {
+        if (grabConstraint) {
+            // Move the constraint's anchor to follow the pointer
+            grabConstraint.pointA.x = pointer.worldX;
+            grabConstraint.pointA.y = pointer.worldY;
+        }
+    });
+
+    phaserContext.input.on('pointerup', () => {
+        if (grabConstraint) {
+            phaserContext.matter.world.remove(grabConstraint);
+            grabConstraint = null;
+            grabbedBody = null;
+            grabOffset = null;
+        }
+    });
+}
+
 const config = {
     type: Phaser.AUTO,
     width: 1100,
@@ -101,9 +147,7 @@ const config = {
     physics: {
         default: "matter",
         matter: {
-            debug: debug? {
-                // showCollisions: true,
-            } : null
+            ...(debug ? { debug: { showCollisions: false } } : {}),
         }
     },
     scene: {
@@ -138,6 +182,7 @@ const config = {
             phaserContext = generalContext.phaserContext =  this;
             phaserContext.matter.add.mouseSpring();
             registerStaticItemDrag();
+            registerPhysicsItemDrag();
 
             initUtils(generalContext);
 
