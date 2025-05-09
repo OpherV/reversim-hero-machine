@@ -184,11 +184,15 @@ const config = {
         preload() {
             this.load.json('shapes', 'assets/shapes.json');
             this.load.image('ball', '/images/ball.png');
+
             this.load.image('coffeeCup', '/images/Cup.png');
-            this.load.image('coffeeMachine', '/images/CoffeeMachine.png');
+            this.load.image('coffeeMachine', '/images/coffeeMachine.png');
+            this.load.image('coffeeMachineCover', '/images/coffeeMachineCover.png');
+
             this.load.image('computer', '/images/Computer.png');
             this.load.image('keyboard', '/images/Keyboard.png');
             this.load.image('paddle', '/images/paddle.png');
+
             this.load.image('coffeeParticle', '/images/coffeeParticle.png');
             this.load.image('fanBase', '/images/fanBase.png');
             this.load.image('fanBlades', '/images/fanBlades.png');
@@ -221,7 +225,7 @@ const config = {
             initPaddles(phaserContext, shapes);
 
             // Create conveyor belt
-            const conveyor = this.matter.add.rectangle(380, 615, 330, 20, {
+            const conveyor = this.matter.add.rectangle(320, 615, 370, 20, {
                 isStatic: true,
                 label: 'conveyor'
             });

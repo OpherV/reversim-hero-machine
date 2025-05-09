@@ -7,7 +7,7 @@ let shapes;
 const COFFEE_SPLASH_TILT_THRESHOLD = 0.72;
 
 function createCoffeeCup() {
-    const coffeeCup = phaserContext.matter.add.sprite(230, 590, 'coffeeCup', null, {
+    const coffeeCup = phaserContext.matter.add.sprite(190, 590, 'coffeeCup', null, {
         label: 'coffeeCup',
         shape: shapes.Cup
     });
@@ -64,10 +64,16 @@ function createCoffeeSplash(coffeeCup, splashNormal, splashSpeed = { min: 160, m
 }
 
 function createCoffeeMachine() {
-    // Coffee Machine
-    addStatic(180, 500, 200, 50);
-    addStatic(180, 650, 200, 50);
-    addStatic(140, 575, 120, 200);
+    const coffeeMachineGroup = {
+        origin: {x: 100, y: 500},
+        visible: true
+    };
+
+    const coffeeMachine = addStatic(88, 56, { group: coffeeMachineGroup, sprite: "coffeeMachine", shape: shapes.coffeeMachine });
+    // const coffeeMachineCover = addStatic(88, 56, { group: coffeeMachineGroup, sprite: "coffeeMachineCover"});
+    phaserContext.add.sprite(
+        coffeeMachineGroup.origin.x + 62,
+        coffeeMachineGroup.origin.y + 86, 'coffeeMachineCover').setDepth(1);
 }
 
 function setupCoffeeCollisionDetection() {

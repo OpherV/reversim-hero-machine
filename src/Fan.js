@@ -32,8 +32,8 @@ function setupFan() {
     };
 
     createPaddle(100, 120, 200, 10, 0, { group: fanGroup });
-    addStatic(100, 210, 60, 20, { group: fanGroup, sprite: "fanBase", shape: shapes.fanBase });
-    blades = addStatic(100, 238, 60, 60, { group: fanGroup, sprite: "fanBlades", shape: shapes.fanBlades, isRotating: true });
+    addStatic(100, 210, { group: fanGroup, sprite: "fanBase", shape: shapes.fanBase });
+    blades = addStatic(100, 238, { group: fanGroup, sprite: "fanBlades", shape: shapes.fanBlades, isRotating: true });
 
     // todo add to group
 }

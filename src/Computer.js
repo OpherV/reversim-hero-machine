@@ -45,7 +45,7 @@ function setupComputer() {
 
     // todo add to group
 
-    addStatic(48, 123, 100, 20, { group: computerGroup, sprite: "keyboard", shape: shapes.Keyboard }); // keyboard
+    addStatic(48, 123, { group: computerGroup, sprite: "keyboard", shape: shapes.Keyboard }); // keyboard
 }
 
 export function initComputer(context, shapesData) {

@@ -58,8 +58,10 @@ export function attachToPhysics(physicsBody, displayObject, options = { matchRot
  * @param {Object} options.shape - Custom shape configuration
  * @returns {Phaser.Physics.Matter.Sprite|MatterJS.Body} The created static object
  */
-export function addStatic(x, y, w, h, options = {}) {
+export function addStatic(x, y, options = {}) {
     const origin = options.group?.origin || {x: 0, y: 0};
+    const defaultRectWidth = 100;
+    const defaultRectHeight = 20;
 
     let obj;
     if (options.sprite) {
@@ -69,16 +71,20 @@ export function addStatic(x, y, w, h, options = {}) {
             inertia: Infinity,
             shape: options.shape ?? {
                 type: 'rectangle',
-                width: w,
-                height: h
+                width: defaultRectWidth,
+                height: defaultRectHeight
             }
         });
     } else {
-        obj = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, w, h, {
-            isStatic: true,
-            mass: Infinity,
-            inertia: Infinity,
-        });
+        if (options.shape?.type === 'rect') {
+            const w = options.shape.width ?? defaultRectWidth;
+            const h = options.shape.height ?? defaultRectHeight;
+            obj = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, w, h, {
+                isStatic: true,
+                mass: Infinity,
+                inertia: Infinity,
+            });
+        }
     }
 
     if (options.group) {
