@@ -224,7 +224,7 @@ const config = {
 
             initPaddles(phaserContext, shapes);
             initConveyorBelt(phaserContext)
-            createConveyorBelt(320, 615, 370, 20)
+            createConveyorBelt(320, 623, 370, 37)
 
             initCoffee(this, shapes)
             initBookStack(phaserContext, shapes);

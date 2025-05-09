@@ -91,7 +91,7 @@ export function createConveyorBelt(x, y, w, h) {
     conveyorGraphics = phaserContext.add.graphics();
     conveyorGraphics.setDepth(-10);
     conveyorDashOffset = 0;
-    conveyorParams = { x, y, w, h, numCircles: 15 };
+    conveyorParams = { x, y, w, h, numCircles: 10 };
 
     drawConveyorBelt(
         conveyorGraphics,
