@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { initConveyorBelt } from "./ConveyorBelt.js";
+import {createConveyorBelt, initConveyorBelt} from "./ConveyorBelt.js";
 import { initCoffee } from "./Coffee.js";
 import { initPaddles} from "./Paddles.js";
 import { initBookStack} from "./BookStack.js";
@@ -8,7 +8,7 @@ import { initComputer } from "./Computer.js";
 import {initFan} from "./Fan.js";
 const Matter = Phaser.Physics.Matter.Matter
 
-const debug = true;
+const debug = false;
 
 let phaserContext;
 let generalContext = {
@@ -223,14 +223,8 @@ const config = {
             shapes = this.cache.json.get('shapes');
 
             initPaddles(phaserContext, shapes);
-
-            // Create conveyor belt
-            const conveyor = this.matter.add.rectangle(320, 615, 370, 20, {
-                isStatic: true,
-                label: 'conveyor'
-            });
-
-            initConveyorBelt(this)
+            initConveyorBelt(phaserContext)
+            createConveyorBelt(320, 615, 370, 20)
 
             initCoffee(this, shapes)
             initBookStack(phaserContext, shapes);

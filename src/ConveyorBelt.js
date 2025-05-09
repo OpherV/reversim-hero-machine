@@ -1,6 +1,12 @@
 const conveyorSpeed = 0.5;
+const DASH_LENGTH = 10; // User can control
+const GAP_LENGTH = 10; // User can control
+// const DASH_ANIMATION_SPEED = 1; // Animation disabled for now
 
-export function initConveyorBelt(phaserContext) {
+let phaserContext = null;
+
+export function initConveyorBelt(context) {
+    phaserContext = context;
 
     // Event listener for objects on the belt
     phaserContext.matter.world.on('collisionstart', (event) => {
@@ -67,4 +73,107 @@ export function initConveyorBelt(phaserContext) {
         });
     });
 
+}
+
+let conveyorGraphics = null;
+let conveyorDashOffset = 0;
+let conveyorParams = null;
+let updateListenerAttached = false;
+
+export function createConveyorBelt(x, y, w, h) {
+    phaserContext.matter.add.rectangle(x, y, w, h, {
+        isStatic: true,
+        label: 'conveyor'
+    });
+
+    if (!phaserContext) return;
+    if (conveyorGraphics) conveyorGraphics.destroy();
+    conveyorGraphics = phaserContext.add.graphics();
+    conveyorGraphics.setDepth(-10);
+    conveyorDashOffset = 0;
+    conveyorParams = { x, y, w, h, numCircles: 15 };
+
+    drawConveyorBelt(
+        conveyorGraphics,
+        x - w / 2,
+        y - h / 2,
+        w,
+        h,
+        11,
+        DASH_LENGTH,
+        GAP_LENGTH,
+        conveyorDashOffset
+    );
+
+    // Attach update listener once
+    if (!updateListenerAttached && phaserContext.events) {
+        phaserContext.events.on('update', () => {
+            if (!conveyorGraphics || !conveyorParams) return;
+            conveyorDashOffset = (conveyorDashOffset + 0.35) % (DASH_LENGTH + GAP_LENGTH);
+            conveyorGraphics.clear();
+            drawConveyorBelt(
+                conveyorGraphics,
+                conveyorParams.x - conveyorParams.w / 2,
+                conveyorParams.y - conveyorParams.h / 2,
+                conveyorParams.w,
+                conveyorParams.h,
+                conveyorParams.numCircles,
+                DASH_LENGTH,
+                GAP_LENGTH,
+                conveyorDashOffset
+            );
+        });
+        updateListenerAttached = true;
+    }
+}
+
+// Draws a procedural conveyor belt with circles and a dashed outline
+function drawConveyorBelt(graphics, x, y, width, height, numCircles, dashLength, gapLength, dashOffset) {
+    // Draw circles
+    const circleRadius = (height / 2) * 0.8;
+    const spacing = (width - 2 * circleRadius) / (numCircles - 1);
+    for (let i = 0; i < numCircles; i++) {
+        const cx = x + circleRadius + i * spacing;
+        const cy = y + height / 2;
+        graphics.fillStyle(0x4a5a7a, 1);
+        graphics.fillCircle(cx, cy, circleRadius);
+    }
+
+    // Draw dashed outline using ellipseTo for rounded corners
+    graphics.lineStyle(4, 0x222222, 1);
+    const r = height / 2;
+    const path = new Phaser.Curves.Path(x + r, y); // Start at top-left corner (after rounding)
+    path.lineTo(x + width - r, y); // Top side
+    path.ellipseTo(r, r, 270, 360, false, 0); // Top-right corner
+    path.lineTo(x + width, y + height - r); // Right side
+    path.ellipseTo(r, r, 0, 90, false, 0); // Bottom-right corner
+    path.lineTo(x + r, y + height); // Bottom side
+    path.ellipseTo(r, r, 90, 180, false, 0); // Bottom-left corner
+    path.lineTo(x, y + r); // Left side
+    path.ellipseTo(r, r, 180, 270, false, 0); // Top-left corner
+
+    // Dashed path drawing
+    const totalLength = path.getLength();
+    let drawn = 0;
+    let draw = true;
+    let offset = dashOffset % (dashLength + gapLength);
+
+    while (drawn < totalLength) {
+        const segLen = draw ? dashLength : gapLength;
+        const start = drawn + offset;
+        const end = Math.min(start + segLen, totalLength);
+        if (draw && start < totalLength) {
+            const p1 = path.getPoint(start / totalLength);
+            graphics.beginPath();
+            graphics.moveTo(p1.x, p1.y);
+            for (let t = start + 1; t < end; t += 2) {
+                const pt = path.getPoint(t / totalLength);
+                graphics.lineTo(pt.x, pt.y);
+            }
+            graphics.strokePath();
+        }
+        drawn = end;
+        draw = !draw;
+        offset = 0;
+    }
 }
