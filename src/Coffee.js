@@ -3,6 +3,8 @@ import { addStatic } from './utils.js';
 let phaserContext;
 let shapes;
 
+let coffeeMachineGroup;
+
 // Tilt threshold in radians (e.g. 30deg = 0.52rad)
 const COFFEE_SPLASH_TILT_THRESHOLD = 0.72;
 
@@ -12,8 +14,10 @@ function createCoffeeCup() {
         shape: shapes.Cup
     });
 
+    coffeeCup.setDepth(150)
+
     // Add properties to track cup state
-    coffeeCup.hasCoffee = true;
+    coffeeCup.hasCoffee = false;
     coffeeCup.lastAngle = 0;
     coffeeCup.creationTime = Date.now();
 
@@ -64,16 +68,15 @@ function createCoffeeSplash(coffeeCup, splashNormal, splashSpeed = { min: 160, m
 }
 
 function createCoffeeMachine() {
-    const coffeeMachineGroup = {
+    coffeeMachineGroup = {
         origin: {x: 100, y: 500},
         visible: true
     };
 
     const coffeeMachine = addStatic(88, 56, { group: coffeeMachineGroup, sprite: "coffeeMachine", shape: shapes.coffeeMachine });
-    // const coffeeMachineCover = addStatic(88, 56, { group: coffeeMachineGroup, sprite: "coffeeMachineCover"});
-    phaserContext.add.sprite(
+    const coffeeMachineCover = phaserContext.add.sprite(
         coffeeMachineGroup.origin.x + 62,
-        coffeeMachineGroup.origin.y + 86, 'coffeeMachineCover').setDepth(1);
+        coffeeMachineGroup.origin.y + 86, 'coffeeMachineCover').setDepth(200);
 }
 
 function setupCoffeeCollisionDetection() {
@@ -160,13 +163,69 @@ function setupCoffeeTiltSplash() {
     });
 }
 
+function pourShot(targetCup) {
+    const spoutX = coffeeMachineGroup.origin.x + 150
+    const spoutY = coffeeMachineGroup.origin.y + 60
+
+    // Only pour if the cup is present and doesn't already have coffee
+    if (!targetCup || targetCup.hasCoffee) return;
+
+    // Particle emitter for the pour effect
+    const emitter = phaserContext.add.particles(spoutX, spoutY, 'coffeeParticle', {
+        speed: { min: 120, max: 180 },
+        angle: { min: 85, max: 95 }, // Downward
+        scale: { start: 0.5, end: 0.1 },
+        lifespan: { min: 200, max: 350 },
+        quantity: 15,
+        frequency: 10,
+        tint: [0x5c3a21, 0x4a2e1b, 0x6e4a31],
+        gravityY: 500,
+        alpha: { start: 0.9, end: 0 },
+        blendMode: 'SCREEN',
+    });
+    emitter.setDepth(100);
+
+    // Stop emitting after a short time
+    phaserContext.time.delayedCall(600, () => {
+        emitter.stop();
+    });
+
+    // Mark cup as filled
+    targetCup.hasCoffee = true;
+}
+
+function setupCoffeePourTrigger() {
+    // Define the X range under the spout (adjust as needed)
+    const POUR_X_MIN = 135;
+    const POUR_X_MAX = 170;
+    phaserContext.events.on('update', () => {
+        phaserContext.matter.world.engine.world.bodies.forEach(body => {
+            if (body.label === 'coffeeCup' && body.gameObject) {
+                const cup = body.gameObject;
+                if (cup.hasCoffee !== true && cup._hasBeenPouredOn !== true) {
+                    const cupX = cup.x - coffeeMachineGroup.origin.x;
+                    // Check if cup is under the spout
+                    if (cupX >= POUR_X_MIN && cupX <= POUR_X_MAX) {
+                        pourShot(cup);
+                        cup._hasBeenPouredOn = true; // Prevent multiple pours
+                    }
+                }
+                // Reset flag if cup leaves the spout area (so new cups can be poured)
+                if (cup._hasBeenPouredOn && (cup.x < POUR_X_MIN || cup.x > POUR_X_MAX)) {
+                    cup._hasBeenPouredOn = false;
+                }
+            }
+        });
+    });
+}
+
 export function initCoffee(context, shapesData) {
     phaserContext = context;
     shapes = shapesData;
 
-    // Setup coffee-related functionality
     createCoffeeMachine();
     setupCoffeeCollisionDetection();
     setupCoffeeCupTimer();
     setupCoffeeTiltSplash();
+    setupCoffeePourTrigger();
 }
