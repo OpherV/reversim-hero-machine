@@ -35,20 +35,7 @@ function setupFan() {
     addStatic(100, 210, 60, 20, { group: fanGroup, sprite: "fanBase", shape: shapes.fanBase });
     blades = addStatic(100, 238, 60, 60, { group: fanGroup, sprite: "fanBlades", shape: shapes.fanBlades, isRotating: true });
 
-    // Add to the fan group for tracking
-    if (fanGroup) {
-        addToGroup(fanGroup, fanSprite, 100, 50);
-    }
-
-    // Add the base as static
-}
-
-// Helper function to add objects to a group
-function addToGroup(group, obj, x, y) {
-    if (!group.objects) {
-        group.objects = [];
-    }
-    group.objects.push({ obj, x, y });
+    // todo add to group
 }
 
 function initFan(context, shapesData) {

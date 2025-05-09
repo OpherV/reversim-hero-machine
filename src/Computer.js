@@ -26,7 +26,25 @@ function setupComputer() {
     };
 
     createPaddle(149, 141, 300, 10, 0, { group: computerGroup });
-    computerSprite = addStatic(227, 60, 140, 150, { group: computerGroup, sprite: "computer", shape: shapes.Computer });
+    
+    // Create the computer as a dynamic physics object that doesn't rotate
+    const x = computerGroup.origin.x + 227;
+    const y = computerGroup.origin.y + 60;
+    
+    // Create the computer sprite with physics
+    computerSprite = phaserContext.matter.add.sprite(x, y, "computer", null, {
+        label: 'computer',
+        shape: shapes.Computer,
+        // Set physics properties to prevent rotation
+        restitution: 0.2,    // Bounciness
+        mass: 5,      // Mass of the computer
+    });
+
+    computerSprite.displayWidth = 140;
+    computerSprite.displayHeight = 150;
+
+    // todo add to group
+
     addStatic(48, 123, 100, 20, { group: computerGroup, sprite: "keyboard", shape: shapes.Keyboard }); // keyboard
 }
 
@@ -36,7 +54,7 @@ export function initComputer(context, shapesData) {
     shapes = shapesData;
 
     setupComputer();
-    startSmoke();
+    const emitters = startSmoke();
 }
 
 /**
@@ -72,10 +90,6 @@ export function startSmoke(options = {}) {
         smokeEmitter3.destroy();
     }
     
-    // Calculate emission point (top of computer)
-    const emitX = computerSprite.x;
-    const emitY = computerSprite.y - (computerSprite.height / 2);
-    
     // Base speed values adjusted by speed parameters
     const baseMinSpeedX = 10 * smokeConfig.speedX;
     const baseMaxSpeedX = 20 * smokeConfig.speedX * smokeConfig.amount;
@@ -84,8 +98,8 @@ export function startSmoke(options = {}) {
     const baseMinSpeedY = 20 * smokeConfig.speedY;
     const baseMaxSpeedY = 40 * smokeConfig.speedY * smokeConfig.amount;
     
-    // Create smoke1 emitter
-    smokeEmitter1 = phaserContext.add.particles(emitX, emitY, 'smoke1', {
+    // Create emitters at initial positions (will be updated in updateEmitterPositions)
+    smokeEmitter1 = phaserContext.add.particles(0, 0, 'smoke1', {
         speed: { min: baseMinSpeedY, max: baseMaxSpeedY },
         scale: { start: 0.1 * smokeConfig.thickness, end: 0.5 * smokeConfig.thickness },
         alpha: { start: 0.5, end: 0 },
@@ -106,17 +120,17 @@ export function startSmoke(options = {}) {
             // Set continuous rotation speed as the particle drifts up
             particle.rotateSpeed = (Math.random() * 0.02 + 0.01) * smokeConfig.rotation;
         },
-        update: (particle, delta) => {
-            // Continuously rotate the particle
-            particle.rotation += particle.rotateSpeed * delta / 16;
-            
-            // Add some slight horizontal movement variation over time
-            particle.velocityX += Math.sin(particle.lifeTime / 300) * 0.05 * smokeConfig.speedX;
-        }
+        // update: (particle, delta) => {
+        //     // Continuously rotate the particle
+        //     particle.rotation += particle.rotateSpeed * delta / 16;
+        //
+        //     // Add some slight horizontal movement variation over time
+        //     particle.velocityX += Math.sin(particle.lifeTime / 300) * 0.05 * smokeConfig.speedX;
+        // }
     });
     
     // Create smoke2 emitter with slightly different parameters
-    smokeEmitter2 = phaserContext.add.particles(emitX + 5, emitY - 2, 'smoke2', {
+    smokeEmitter2 = phaserContext.add.particles(0, 0, 'smoke2', {
         speed: { min: baseMinSpeedY * 0.75, max: baseMaxSpeedY * 0.9 },
         scale: { start: 0.12 * smokeConfig.thickness, end: 0.55 * smokeConfig.thickness },
         alpha: { start: 0.4, end: 0 },
@@ -147,7 +161,7 @@ export function startSmoke(options = {}) {
     });
     
     // Create smoke3 emitter with slightly different parameters
-    smokeEmitter3 = phaserContext.add.particles(emitX - 5, emitY - 1, 'smoke3', {
+    smokeEmitter3 = phaserContext.add.particles(0, 0, 'smoke3', {
         speed: { min: baseMinSpeedY * 0.9, max: baseMaxSpeedY * 0.85 },
         scale: { start: 0.08 * smokeConfig.thickness, end: 0.48 * smokeConfig.thickness },
         alpha: { start: 0.45, end: 0 },
@@ -185,21 +199,44 @@ export function startSmoke(options = {}) {
             particle.velocityX += Math.sin(particle.lifeTime / 250) * 0.06 * smokeConfig.speedX;
         }
     });
+    // Position emitters initially
+    updateEmitterPositions();
     
+    // Add an update event to keep the emitters following the computer sprite
+    phaserContext.events.on('update', updateEmitterPositions);
+    // updateEmitterPositions();
     return [smokeEmitter1, smokeEmitter2, smokeEmitter3];
+}
+
+/**
+ * Updates the positions of the smoke emitters to follow the computer sprite
+ */
+function updateEmitterPositions() {
+    if (!computerSprite || !smokeEmitter1 || !smokeEmitter2 || !smokeEmitter3) return;
+    
+    // Calculate the emission point at the top of the computer
+    const emitOffsetY = -(computerSprite.displayHeight / 2);
+
+    // Update emitter positions to follow the computer
+    smokeEmitter1.setPosition(computerSprite.x, computerSprite.y + emitOffsetY);
+    smokeEmitter2.setPosition(computerSprite.x + 5, computerSprite.y + emitOffsetY - 2);
+    smokeEmitter3.setPosition(computerSprite.x - 5, computerSprite.y + emitOffsetY - 1);
 }
 
 /**
  * Stops the smoke emission
  */
 export function stopSmoke() {
+    // Remove the update event when stopping smoke
+    phaserContext.events.off('update', updateEmitterPositions);
+    
     if (smokeEmitter1) smokeEmitter1.stop();
     if (smokeEmitter2) smokeEmitter2.stop();
     if (smokeEmitter3) smokeEmitter3.stop();
 }
 
 /**
- * Updates smoke parameters
+ * Updates the smoke parameters
  * @param {Object} options - Configuration options for smoke
  * @param {number} options.amount - Amount of smoke particles (emission rate)
  * @param {number} options.thickness - Thickness of smoke particles (size)
@@ -209,15 +246,22 @@ export function stopSmoke() {
  * @param {number} options.rotation - Amount of rotation for smoke particles
  */
 export function updateSmokeParams(options = {}) {
-    if (options.amount !== undefined) smokeConfig.amount = options.amount;
-    if (options.thickness !== undefined) smokeConfig.thickness = options.thickness;
-    if (options.distance !== undefined) smokeConfig.distance = options.distance;
-    if (options.speedX !== undefined) smokeConfig.speedX = options.speedX;
-    if (options.speedY !== undefined) smokeConfig.speedY = options.speedY;
-    if (options.rotation !== undefined) smokeConfig.rotation = options.rotation;
+    // Update config
+    Object.assign(smokeConfig, options);
     
-    // Restart the emitter with new parameters if it exists
-    if (smokeEmitter1 || smokeEmitter2 || smokeEmitter3) {
-        startSmoke(smokeConfig);
-    }
+    // Restart smoke with new parameters
+    startSmoke(smokeConfig);
 }
+
+/**
+ * Returns all current active smoke particles from all emitters
+ */
+function getSmokeParticles() {
+    let all = [];
+    if (smokeEmitter1 && smokeEmitter1.alive) all = all.concat(smokeEmitter1.alive);
+    if (smokeEmitter2 && smokeEmitter2.alive) all = all.concat(smokeEmitter2.alive);
+    if (smokeEmitter3 && smokeEmitter3.alive) all = all.concat(smokeEmitter3.alive);
+    return all;
+}
+
+export { getSmokeParticles };
