@@ -1,14 +1,38 @@
 // Paddle-related functionality
-import { addToGroup, attachToPhysics } from './utils.js';
+import { attachToPhysics } from './utils.js';
+import { addObjectBuilder, createGroupFromConfig } from "./groupManager.js";
+
+const paddleGroupConfig = {
+    id: "paddles",
+    origin: {x: 50, y: 50},
+    showHandle: false,
+    objects: [
+        {
+            id: "paddle1",
+            type: "paddle",
+            x: 50,
+            y: 150,
+            w: 150,
+            h: 10,
+            angle: Phaser.Math.DegToRad(30),
+        },
+        {
+            id: "paddle2",
+            type: "paddle",
+            x: 250,
+            y: 250,
+            w: 150,
+            h: 10,
+            angle: Phaser.Math.DegToRad(-30),
+        },
+    ]
+}
 
 let phaserContext;
-let shapes;
 
-export function createPaddle(x, y, width, height, angle = 0 , options = {}) {
-    const origin = options.group?.origin || {x: 0, y: 0};
-
+export function createPaddle(x, y, width, height, angle = 0) {
     // Create the physics body for the paddle
-    const paddle = phaserContext.matter.add.rectangle(origin.x + x, origin.y + y, width, height, {
+    const paddle = phaserContext.matter.add.rectangle(x, y, width, height, {
         isStatic: true,
         mass: Infinity,
         inertia: Infinity,
@@ -28,24 +52,24 @@ export function createPaddle(x, y, width, height, angle = 0 , options = {}) {
         0, 0            // top and bottom slice points (0 for no vertical slicing)
     );
 
-    if (options.group) {
-        addToGroup(options.group, paddle, x, y);
-    }
-
     // Attach the sprite to the physics body
-    return attachToPhysics(paddle, sprite, { matchRotation: true });
+
+    return {
+        ...attachToPhysics(paddle, sprite, { matchRotation: true })
+    }
 }
 
-function createGamePaddles() {
-    // Create the angled paddles used in the game
-    createPaddle(100, 200, 150, 10, Phaser.Math.DegToRad(30));
-    createPaddle(300, 300, 150, 10, Phaser.Math.DegToRad(-30));
-}
-
-export function initPaddles(context, shapesData) {
+export function initPaddles(context) {
     phaserContext = context;
-    shapes = shapesData;
+    addObjectBuilder('paddle', (group, itemConfig) => {
+        return createPaddle(
+            itemConfig.x,
+            itemConfig.y,
+            itemConfig.w,
+            itemConfig.h,
+            itemConfig.angle,
+        );
+    });
 
-    // Create the game paddles
-    createGamePaddles();
+    createGroupFromConfig(paddleGroupConfig)
 }

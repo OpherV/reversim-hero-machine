@@ -1,14 +1,57 @@
-// Computer-related functionality
-import { addStatic } from './utils.js';
-import { createPaddle } from './Paddles.js';
+import {createGroupFromConfig, getMachineObjectById} from "./groupManager.js";
+
+const computerConfig = {
+    "id": "computerGroup",
+    "showHandle": true,
+    "origin": {
+        "x": 665,
+        "y": 825
+    },
+    "objects": [
+        {
+            "type": "paddle",
+            "id": "computerBase",
+            "x": 149,
+            "y": 141,
+            "w": 300,
+            "h": 10
+        },
+        {
+            "type": "sprite",
+            "id": "computer",
+            "shapeName": "Computer",
+            "sprite": "computer",
+            "x": 227,
+            "y": 60,
+            "displayWidth": 157,
+            "displayHeight": 151,
+            "matterBodyConfig": {
+                "restitution": 0.2,    // Bounciness
+                "mass": 5,      // Mass of the computer
+            }
+
+        },
+        {
+            "type": "sprite",
+            "sprite": "keyboard",
+            "shapeName": "Keyboard",
+            "id": "keyboard",
+            "x": 48,
+            "y": 123,
+            "displayWidth": 83,
+            "displayHeight": 31
+        }
+    ]
+}
 
 let generalContext;
 let phaserContext;
-let shapes;
+
 let computerSprite;
 let smokeEmitter1;
 let smokeEmitter2;
 let smokeEmitter3;
+
 let smokeConfig = {
     amount: 1,      // Controls emission rate
     thickness: 2,   // Controls particle size
@@ -18,42 +61,13 @@ let smokeConfig = {
     rotation: 2     // Controls how much the particles rotate
 };
 
-function setupComputer() {
-    // Computer
-    const computerGroup = {
-        origin: {x: 665, y: 825},
-        visible: true
-    };
-
-    createPaddle(149, 141, 300, 10, 0, { group: computerGroup });
-    
-    // Create the computer as a dynamic physics object that doesn't rotate
-    const x = computerGroup.origin.x + 227;
-    const y = computerGroup.origin.y + 60;
-    
-    // Create the computer sprite with physics
-    computerSprite = phaserContext.matter.add.sprite(x, y, "computer", null, {
-        label: 'computer',
-        shape: shapes.Computer,
-        // Set physics properties to prevent rotation
-        restitution: 0.2,    // Bounciness
-        mass: 5,      // Mass of the computer
-    });
-
-    computerSprite.displayWidth = 140;
-    computerSprite.displayHeight = 150;
-
-    // todo add to group
-
-    addStatic(48, 123, { group: computerGroup, sprite: "keyboard", shape: shapes.Keyboard }); // keyboard
-}
-
-export function initComputer(context, shapesData) {
+export function initComputer(context) {
     generalContext = context
     phaserContext = context.phaserContext;
-    shapes = shapesData;
 
-    setupComputer();
+    createGroupFromConfig(computerConfig);
+    computerSprite = getMachineObjectById("computer").phaserObject;
+
     const emitters = startSmoke();
 }
 

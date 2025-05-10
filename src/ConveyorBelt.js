@@ -1,13 +1,26 @@
+import {addObjectBuilder} from "./groupManager.js";
+
 const conveyorSpeed = 0.5;
-const DASH_LENGTH = 10; // User can control
-const GAP_LENGTH = 10; // User can control
-// const DASH_ANIMATION_SPEED = 1; // Animation disabled for now
+const DASH_LENGTH = 10;
+const GAP_LENGTH = 10;
+const CIRCLE_RADIUS_RATIO = 0.6; // Ratio of circle radius to height of conveyor belt
 
 let phaserContext = null;
 
 export function initConveyorBelt(context) {
     phaserContext = context;
+    addObjectBuilder('conveyor', (group, itemConfig) => {
+        return createConveyorBelt(
+            itemConfig.x,
+            itemConfig.y,
+            itemConfig.w,
+            itemConfig.h,
+            itemConfig.depth
+        );
+    })
 
+
+    // todo refactor collisions
     // Event listener for objects on the belt
     phaserContext.matter.world.on('collisionstart', (event) => {
         event.pairs.forEach(({ bodyA, bodyB }) => {
@@ -75,49 +88,34 @@ export function initConveyorBelt(context) {
 
 }
 
-let conveyorGraphics = null;
-let conveyorDashOffset = 0;
-let conveyorParams = null;
-let updateListenerAttached = false;
 
-export function createConveyorBelt(x, y, w, h) {
-    phaserContext.matter.add.rectangle(x, y, w, h, {
+export function createConveyorBelt(x, y, w, h, depth) {
+    let conveyorGraphics = null;
+    let conveyorDashOffset = 0;
+    let updateListenerAttached = false;
+    let numCircles = 12;
+
+    const body = phaserContext.matter.add.rectangle(x, y, w, h, {
         isStatic: true,
         label: 'conveyor'
     });
 
-    if (!phaserContext) return;
-    if (conveyorGraphics) conveyorGraphics.destroy();
     conveyorGraphics = phaserContext.add.graphics();
-    conveyorGraphics.setDepth(-10);
+    conveyorGraphics.setDepth(depth ?? 100);
     conveyorDashOffset = 0;
-    conveyorParams = { x, y, w, h, numCircles: 10 };
-
-    drawConveyorBelt(
-        conveyorGraphics,
-        x - w / 2,
-        y - h / 2,
-        w,
-        h,
-        11,
-        DASH_LENGTH,
-        GAP_LENGTH,
-        conveyorDashOffset
-    );
 
     // Attach update listener once
     if (!updateListenerAttached && phaserContext.events) {
         phaserContext.events.on('update', () => {
-            if (!conveyorGraphics || !conveyorParams) return;
             conveyorDashOffset = (conveyorDashOffset + 0.35) % (DASH_LENGTH + GAP_LENGTH);
             conveyorGraphics.clear();
             drawConveyorBelt(
                 conveyorGraphics,
-                conveyorParams.x - conveyorParams.w / 2,
-                conveyorParams.y - conveyorParams.h / 2,
-                conveyorParams.w,
-                conveyorParams.h,
-                conveyorParams.numCircles,
+                body.position.x - w / 2,
+                body.position.y - h / 2,
+                w,
+                h,
+                numCircles,
                 DASH_LENGTH,
                 GAP_LENGTH,
                 conveyorDashOffset
@@ -125,12 +123,17 @@ export function createConveyorBelt(x, y, w, h) {
         });
         updateListenerAttached = true;
     }
+
+    return {
+        phaserObject: conveyorGraphics,
+        body
+    };
 }
 
 // Draws a procedural conveyor belt with circles and a dashed outline
 function drawConveyorBelt(graphics, x, y, width, height, numCircles, dashLength, gapLength, dashOffset) {
     // Draw circles
-    const circleRadius = (height / 2) * 0.8;
+    const circleRadius = (height / 2) * CIRCLE_RADIUS_RATIO;
     const spacing = (width - 2 * circleRadius) / (numCircles - 1);
     for (let i = 0; i < numCircles; i++) {
         const cx = x + circleRadius + i * spacing;

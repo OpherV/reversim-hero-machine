@@ -1,4 +1,41 @@
 import { addStatic } from './utils.js';
+import {createGroupFromConfig, getGroupById, getMachineObjectByBody, getMachineObjectById} from "./groupManager.js";
+
+const coffeeConfig = {
+    "id": "coffeeGroup",
+    "origin": {
+        "x": 75.625,
+        "y": 418
+    },
+    "showHandle": false,
+    "objects": [
+        {
+            "type": "static",
+            "id": "coffeeMachine",
+            "x": 112.375,
+            "y": 138,
+            "sprite": "coffeeMachine",
+            "shapeName": "coffeeMachine"
+        },
+        {
+            "type": "sprite",
+            "id": "coffeeMachineCover",
+            "sprite": "coffeeMachineCover",
+            "x": 86.375,
+            "y": 168,
+            "depth": 200
+        },
+        {
+            "type": "conveyor",
+            "id": "coffeeConveyor",
+            "x": 242,
+            "y": 206,
+            "w": 370,
+            "h": 37,
+            "depth": 10
+        }
+    ]
+}
 
 let phaserContext;
 let shapes;
@@ -9,7 +46,14 @@ let coffeeMachineGroup;
 const COFFEE_SPLASH_TILT_THRESHOLD = 0.72;
 
 function createCoffeeCup() {
-    const coffeeCup = phaserContext.matter.add.sprite(190, 590, 'coffeeCup', null, {
+    const coffeeMachine = getMachineObjectById('coffeeMachine')
+    const coffeeMachineBodyPosition = coffeeMachine.body.position;
+
+    const coffeeCup = phaserContext.matter.add.sprite(
+        coffeeMachineBodyPosition.x,
+        coffeeMachineBodyPosition.y + 30,
+        'coffeeCup',
+        null, {
         label: 'coffeeCup',
         shape: shapes.Cup
     });
@@ -68,18 +112,12 @@ function createCoffeeSplash(coffeeCup, splashNormal, splashSpeed = { min: 160, m
 }
 
 function createCoffeeMachine() {
-    coffeeMachineGroup = {
-        origin: {x: 100, y: 500},
-        visible: true
-    };
-
-    const coffeeMachine = addStatic(88, 56, { group: coffeeMachineGroup, sprite: "coffeeMachine", shape: shapes.coffeeMachine });
-    const coffeeMachineCover = phaserContext.add.sprite(
-        coffeeMachineGroup.origin.x + 62,
-        coffeeMachineGroup.origin.y + 86, 'coffeeMachineCover').setDepth(200);
+    coffeeMachineGroup = createGroupFromConfig(coffeeConfig)
 }
 
 function setupCoffeeCollisionDetection() {
+
+    // todo refactor collision
     // Add collision detection for coffee cups
     phaserContext.matter.world.on('collisionstart', (event) => {
         event.pairs.forEach(({ bodyA, bodyB, collision }) => {
@@ -164,8 +202,11 @@ function setupCoffeeTiltSplash() {
 }
 
 function pourShot(targetCup) {
-    const spoutX = coffeeMachineGroup.origin.x + 150
-    const spoutY = coffeeMachineGroup.origin.y + 60
+    const coffeeMachine = getMachineObjectById('coffeeMachine')
+    const coffeeMachineBodyPosition = coffeeMachine.body.position;
+
+    const spoutX = coffeeMachineBodyPosition.x + 63;
+    const spoutY = coffeeMachineBodyPosition.y + 3;
 
     // Only pour if the cup is present and doesn't already have coffee
     if (!targetCup || targetCup.hasCoffee) return;
@@ -195,15 +236,18 @@ function pourShot(targetCup) {
 }
 
 function setupCoffeePourTrigger() {
+    const coffeeMachine = getMachineObjectById('coffeeMachine')
+    const coffeeMachineBodyPosition = coffeeMachine.body.position;
+
     // Define the X range under the spout (adjust as needed)
-    const POUR_X_MIN = 135;
-    const POUR_X_MAX = 170;
+    const POUR_X_MIN = 50;
+    const POUR_X_MAX = 80;
     phaserContext.events.on('update', () => {
         phaserContext.matter.world.engine.world.bodies.forEach(body => {
             if (body.label === 'coffeeCup' && body.gameObject) {
                 const cup = body.gameObject;
                 if (cup.hasCoffee !== true && cup._hasBeenPouredOn !== true) {
-                    const cupX = cup.x - coffeeMachineGroup.origin.x;
+                    const cupX = cup.x - coffeeMachineBodyPosition.x;
                     // Check if cup is under the spout
                     if (cupX >= POUR_X_MIN && cupX <= POUR_X_MAX) {
                         pourShot(cup);

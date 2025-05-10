@@ -2,6 +2,42 @@
 import { addStatic } from './utils.js';
 import { createPaddle } from './Paddles.js';
 import { getSmokeParticles } from './Computer.js';
+import {createGroupFromConfig, getMachineObjectById} from "./groupManager.js";
+
+const fanConfig = {
+    "id": "fanGroup",
+    "showHandle": true,
+    "origin": {
+        "x": 794.75,
+        "y": 383.625
+    },
+    "objects": [
+        {
+            "type": "paddle",
+            "id": "fanPaddle",
+            "x": 100,
+            "y": 120,
+            "w": 200,
+            "h": 10
+        },
+        {
+            "type": "static",
+            "id": "fanBase",
+            "sprite": "fanBase",
+            "shapeName": "fanBase",
+            "x": 100,
+            "y": 210
+        },
+        {
+            "type": "static",
+            "id": "fanBlades",
+            "sprite": "fanBlades",
+            "shapeName": "fanBlades",
+            "x": 100,
+            "y": 238
+        }
+    ]
+}
 
 let generalContext;
 let phaserContext;
@@ -24,25 +60,13 @@ let fanBounds = { x: 100, y: 238, r: 50 };
 let debugGraphics;
 let showFanDebug = false;
 
-function setupFan() {
-    // Fan
-    const fanGroup = {
-        origin: {x: 787, y: 414},
-        visible: true
-    };
-
-    createPaddle(100, 120, 200, 10, 0, { group: fanGroup });
-    addStatic(100, 210, { group: fanGroup, sprite: "fanBase", shape: shapes.fanBase });
-    blades = addStatic(100, 238, { group: fanGroup, sprite: "fanBlades", shape: shapes.fanBlades, isRotating: true });
-
-    // todo add to group
-}
-
-function initFan(context, shapesData) {
+function initFan(context) {
     generalContext = context;
     phaserContext = context.phaserContext;
-    shapes = shapesData;
-    setupFan();
+
+    createGroupFromConfig(fanConfig)
+    blades = getMachineObjectById('fanBlades').phaserObject;
+
     if (phaserContext && phaserContext.events) {
         if (!debugGraphics) {
             debugGraphics = phaserContext.add.graphics();
