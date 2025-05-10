@@ -8,6 +8,7 @@ import { initComputer } from "./Computer.js";
 import { initFan } from "./Fan.js";
 import {getMachineObjectByBody, getMachineObjectById, initGroupManager} from "./groupManager.js";
 import { initDragManager } from "./dragManager.js";
+import {drawCord, initCord, updateCord} from "./CoiledCord.js";
 
 const debug = true;
 
@@ -16,6 +17,7 @@ let generalContext = {
     phaserContext: null,
 }
 let shapes;
+let cordGraphics;
 
 const objectRemovalDistance = 200;
 
@@ -90,6 +92,12 @@ const config = {
             initComputer(generalContext);
             initFan(generalContext);
 
+            // Initialize the coiled cord after computer
+            initCord(phaserContext);
+
+            // Create Phaser graphics for the cord
+            cordGraphics = this.add.graphics();
+
             this.time.addEvent({
                 delay: 1500,
                 callback: createBall,
@@ -101,6 +109,9 @@ const config = {
             const removalDist = objectRemovalDistance; // configurable
             const frameWidth = phaserContext.game.config.width;
             const frameHeight = phaserContext.game.config.height;
+            updateCord();
+            drawCord(cordGraphics);
+
             this.matter.world.engine.world.bodies.forEach((body) => {
                 const {x, y} = body.position;
                 // Calculate distance to nearest frame edge
