@@ -57,7 +57,6 @@ function spriteBuilder(group, itemConfig) {
         )
         body = phaserObject.body;
     } else {
-        console.log(itemConfig)
         phaserObject = phaserContext.add.sprite(
             itemConfig.x,
             itemConfig.y,

@@ -6,7 +6,7 @@ import { initBookStack} from "./BookStack.js";
 import { initUtils } from "./utils.js";
 import { initComputer } from "./Computer.js";
 import { initFan } from "./Fan.js";
-import { initGroupManager } from "./groupManager.js";
+import {getMachineObjectByBody, getMachineObjectById, initGroupManager} from "./groupManager.js";
 import { initDragManager } from "./dragManager.js";
 
 const debug = true;
@@ -14,9 +14,10 @@ const debug = true;
 let phaserContext;
 let generalContext = {
     phaserContext: null,
-    groups: []
 }
 let shapes;
+
+const objectRemovalDistance = 200;
 
 function createBall() {
     const ball = phaserContext.matter.add.sprite(100, 50, 'ball', null, {
@@ -97,15 +98,31 @@ const config = {
         },
 
         update() {
+            const removalDist = objectRemovalDistance; // configurable
+            const frameWidth = phaserContext.game.config.width;
+            const frameHeight = phaserContext.game.config.height;
             this.matter.world.engine.world.bodies.forEach((body) => {
                 const {x, y} = body.position;
+                // Calculate distance to nearest frame edge
+                const dx = Math.min(Math.abs(x), Math.abs(frameWidth - x));
+                const dy = Math.min(Math.abs(y), Math.abs(frameHeight - y));
 
-                // Remove bodies that are out of bounds
-                if (x < 0 || x > phaserContext.game.config.width || y < 0 || y > phaserContext.game.config.height) {
+                // Remove bodies that are out of bounds by at least removalDist
+                if (
+                    x < -removalDist || x > frameWidth + removalDist ||
+                    y < -removalDist || y > frameHeight + removalDist
+                ) {
+                    const machineObject = getMachineObjectByBody(body);
+                    if (machineObject) {
+                        machineObject.phaserObject.destroy();
+
+                    } else {
+                        // relevant for balls
+                        body.gameObject.destroy();
+                    }
                     phaserContext.matter.world.remove(body);
                 }
             });
-
         }
     }
 };
