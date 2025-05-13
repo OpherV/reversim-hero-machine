@@ -1,4 +1,4 @@
-import Phaser from "phaser";
+import * as Phaser from "phaser";
 import { initConveyorBelt } from "./ConveyorBelt.js";
 import { initCoffee } from "./Coffee.js";
 import { initPaddles} from "./Paddles.js";
@@ -6,11 +6,38 @@ import { initBookStack} from "./BookStack.js";
 import { initUtils } from "./utils.js";
 import { initComputer } from "./Computer.js";
 import { initFan } from "./Fan.js";
-import {getMachineObjectByBody, getMachineObjectById, initGroupManager} from "./groupManager.js";
+import {getMachineObjectByBody, initGroupManager} from "./groupManager.js";
 import { initDragManager } from "./dragManager.js";
 import {drawCord, initCord, updateCord} from "./CoiledCord.js";
 
-const debug = true;
+// Vite static asset imports (updated for Rollup/public directory structure)
+import shapesJson from '../public/assets/shapes.json';
+import ballImg from '../public/images/ball.png';
+
+import coffeeCupImg from '../public/images/Cup.png';
+import coffeeMachineImg from '../public/images/coffeeMachine.png';
+import coffeeMachineCoverImg from '../public/images/coffeeMachineCover.png';
+
+import computerImg from '../public/images/Computer.png';
+import keyboardImg from '../public/images/Keyboard.png';
+import paddleImg from '../public/images/paddle.png';
+
+import coffeeParticleImg from '../public/images/coffeeParticle.png';
+import fanBaseImg from '../public/images/fanBase.png';
+import fanBladesImg from '../public/images/fanBlades.png';
+import windMachineImg from '../public/images/windMachine.png';
+
+import book1Img from '../public/images/book1.png';
+import book2Img from '../public/images/book2.png';
+import book3Img from '../public/images/book3.png';
+import book4Img from '../public/images/book4.png';
+import book5Img from '../public/images/book5.png';
+import book6Img from '../public/images/book6.png';
+import book7Img from '../public/images/book7.png';
+
+import smoke1Img from '../public/images/smoke1.png';
+import smoke2Img from '../public/images/smoke2.png';
+import smoke3Img from '../public/images/smoke3.png';
 
 let phaserContext;
 let generalContext = {
@@ -18,6 +45,7 @@ let generalContext = {
 }
 let shapes;
 let cordGraphics;
+let game = null;
 
 const objectRemovalDistance = 200;
 
@@ -30,112 +58,144 @@ function createBall() {
     ball.scale = 2/3;
 }
 
-
-
-const config = {
-    type: Phaser.AUTO,
-    width: 1100,
-    height: 1100,
-    transparent: true,
-    physics: {
-        default: "matter",
-        matter: {
-            ...(debug ? { debug: { showCollisions: false } } : {}),
-        }
-    },
-    scene: {
-        preload() {
-            this.load.json('shapes', 'assets/shapes.json');
-            this.load.image('ball', '/images/ball.png');
-
-            this.load.image('coffeeCup', '/images/Cup.png');
-            this.load.image('coffeeMachine', '/images/coffeeMachine.png');
-            this.load.image('coffeeMachineCover', '/images/coffeeMachineCover.png');
-
-            this.load.image('computer', '/images/Computer.png');
-            this.load.image('keyboard', '/images/Keyboard.png');
-            this.load.image('paddle', '/images/paddle.png');
-
-            this.load.image('coffeeParticle', '/images/coffeeParticle.png');
-            this.load.image('fanBase', '/images/fanBase.png');
-            this.load.image('fanBlades', '/images/fanBlades.png');
-            this.load.image('windMachine', '/images/windMachine.png');
-
-            // Load book images
-            this.load.image('book1', '/images/book1.png');
-            this.load.image('book2', '/images/book2.png');
-            this.load.image('book3', '/images/book3.png');
-            this.load.image('book4', '/images/book4.png');
-            this.load.image('book5', '/images/book5.png');
-            this.load.image('book6', '/images/book6.png');
-            this.load.image('book7', '/images/book7.png');
-
-            this.load.image('smoke1', '/images/smoke1.png');
-            this.load.image('smoke2', '/images/smoke2.png');
-            this.load.image('smoke3', '/images/smoke3.png');
+const createConfig = (domElement, options = {}) => {
+    const { debug = false, width = 1100, height = 1100 } = options;
+    
+    return {
+        type: Phaser.AUTO,
+        width,
+        height,
+        transparent: true,
+        parent: domElement,
+        input: { mouse: { preventDefaultWheel: false } },
+        physics: {
+            default: "matter",
+            matter: {
+                ...(debug ? { debug: { showCollisions: false } } : {}),
+            }
         },
+        scene: {
+            preload() {
+                this.load.json('shapes', shapesJson);
+                this.load.image('ball', ballImg);
 
-        create() {
-            phaserContext = generalContext.phaserContext =  this;
-            phaserContext.matter.add.mouseSpring();
+                this.load.image('coffeeCup', coffeeCupImg);
+                this.load.image('coffeeMachine', coffeeMachineImg);
+                this.load.image('coffeeMachineCover', coffeeMachineCoverImg);
 
-            shapes = this.cache.json.get('shapes');
+                this.load.image('computer', computerImg);
+                this.load.image('keyboard', keyboardImg);
+                this.load.image('paddle', paddleImg);
 
-            initGroupManager(generalContext, shapes);
-            initUtils(generalContext);
-            initDragManager(generalContext)
+                this.load.image('coffeeParticle', coffeeParticleImg);
+                this.load.image('fanBase', fanBaseImg);
+                this.load.image('fanBlades', fanBladesImg);
+                this.load.image('windMachine', windMachineImg);
 
-            initPaddles(phaserContext, shapes);
-            initConveyorBelt(phaserContext)
-            initCoffee(phaserContext, shapes)
-            initBookStack(phaserContext);
-            initComputer(generalContext);
-            initFan(generalContext);
+                // Load book images
+                this.load.image('book1', book1Img);
+                this.load.image('book2', book2Img);
+                this.load.image('book3', book3Img);
+                this.load.image('book4', book4Img);
+                this.load.image('book5', book5Img);
+                this.load.image('book6', book6Img);
+                this.load.image('book7', book7Img);
 
-            // Initialize the coiled cord after computer
-            initCord(phaserContext);
+                this.load.image('smoke1', smoke1Img);
+                this.load.image('smoke2', smoke2Img);
+                this.load.image('smoke3', smoke3Img);
+            },
 
-            // Create Phaser graphics for the cord
-            cordGraphics = this.add.graphics();
+            create() {
+                phaserContext = generalContext.phaserContext =  this;
+                phaserContext.matter.add.mouseSpring();
 
-            this.time.addEvent({
-                delay: 1500,
-                callback: createBall,
-                loop: true
-            });
-        },
+                shapes = this.cache.json.get('shapes');
 
-        update() {
-            const removalDist = objectRemovalDistance; // configurable
-            const frameWidth = phaserContext.game.config.width;
-            const frameHeight = phaserContext.game.config.height;
-            updateCord();
-            drawCord(cordGraphics);
+                initGroupManager(generalContext, shapes);
+                initUtils(generalContext);
+                initDragManager(generalContext)
 
-            this.matter.world.engine.world.bodies.forEach((body) => {
-                const {x, y} = body.position;
-                // Calculate distance to nearest frame edge
-                const dx = Math.min(Math.abs(x), Math.abs(frameWidth - x));
-                const dy = Math.min(Math.abs(y), Math.abs(frameHeight - y));
+                initPaddles(phaserContext, shapes);
+                initConveyorBelt(phaserContext)
+                initCoffee(phaserContext, shapes)
+                initBookStack(phaserContext);
+                initComputer(generalContext);
+                initFan(generalContext);
 
-                // Remove bodies that are out of bounds by at least removalDist
-                if (
-                    x < -removalDist || x > frameWidth + removalDist ||
-                    y < -removalDist || y > frameHeight + removalDist
-                ) {
-                    const machineObject = getMachineObjectByBody(body);
-                    if (machineObject) {
-                        machineObject.phaserObject.destroy();
+                // Initialize the coiled cord after computer
+                initCord(phaserContext);
 
-                    } else {
-                        // relevant for balls
-                        body.gameObject.destroy();
+                // Create Phaser graphics for the cord
+                cordGraphics = this.add.graphics();
+
+                this.time.addEvent({
+                    delay: 1500,
+                    callback: createBall,
+                    loop: true
+                });
+            },
+
+            update() {
+                const removalDist = objectRemovalDistance; // configurable
+                const frameWidth = phaserContext.game.config.width;
+                const frameHeight = phaserContext.game.config.height;
+                updateCord();
+                drawCord(cordGraphics);
+
+                this.matter.world.engine.world.bodies.forEach((body) => {
+                    const {x, y} = body.position;
+                    // Calculate distance to nearest frame edge
+                    const dx = Math.min(Math.abs(x), Math.abs(frameWidth - x));
+                    const dy = Math.min(Math.abs(y), Math.abs(frameHeight - y));
+
+                    // Remove bodies that are out of bounds by at least removalDist
+                    if (
+                        x < -removalDist || x > frameWidth + removalDist ||
+                        y < -removalDist || y > frameHeight + removalDist
+                    ) {
+                        const machineObject = getMachineObjectByBody(body);
+                        if (machineObject) {
+                            machineObject.phaserObject.destroy();
+
+                        } else {
+                            // relevant for balls
+                            body.gameObject.destroy();
+                        }
+                        phaserContext.matter.world.remove(body);
                     }
-                    phaserContext.matter.world.remove(body);
-                }
-            });
+                });
+            }
+        }
+    };
+};
+
+const ReversimMachine = {
+    init(domRef, options = {}) {
+        if (game) {
+            game.destroy(true);
+        }
+        
+        // If domRef is a string, treat it as a selector
+        const domElement = typeof domRef === 'string' ? document.querySelector(domRef) : domRef;
+        
+        if (!domElement) {
+            console.error('Invalid DOM reference provided to ReversimMachine.init');
+            return;
+        }
+        
+        const config = createConfig(domElement, options);
+        game = new Phaser.Game(config);
+        
+        return game;
+    },
+    
+    destroy() {
+        if (game) {
+            game.destroy(true);
+            game = null;
         }
     }
 };
 
-new Phaser.Game(config);
+export default ReversimMachine;

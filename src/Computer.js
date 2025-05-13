@@ -71,7 +71,7 @@ export function initComputer(context) {
     computerSprite.once('destroy', () => {
         stopSmoke();
     });
-    // const emitters = startSmoke();
+    const emitters = startSmoke();
 }
 
 /**

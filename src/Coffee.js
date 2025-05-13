@@ -1,5 +1,5 @@
-import { addStatic } from './utils.js';
-import {createGroupFromConfig, getGroupById, getMachineObjectByBody, getMachineObjectById} from "./groupManager.js";
+import * as Phaser from "phaser";
+import {createGroupFromConfig, getMachineObjectById} from "./groupManager.js";
 
 const coffeeConfig = {
     "id": "coffeeGroup",

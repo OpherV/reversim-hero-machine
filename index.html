@@ -10,13 +10,22 @@
     <title>Reversim Machine Test</title>
     <style>
       canvas {
-        width: 600px;
-        height: 600px;
+        width: 800px;
+        height: 800px;
       }
     </style>
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module">
+      import ReversimMachine from '/src/main.js';
+      
+      // Initialize the machine with the app div and options
+      document.addEventListener('DOMContentLoaded', () => {
+        ReversimMachine.init(document.getElementById('app'), {
+          debug: true
+        });
+      });
+    </script>
   </body>
 </html>

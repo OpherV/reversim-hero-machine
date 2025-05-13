@@ -1,14 +1,28 @@
 {
-  "name": "reversim-hero-machine",
-  "private": true,
-  "version": "0.0.0",
+  "name": "reversim-machine",
+  "version": "0.1.0",
+  "description": "A physics-based interactive machine for Reversim 2025 Conference",
   "type": "module",
+  "main": "dist/reversim-machine.cjs.js",
+  "module": "dist/reversim-machine.esm.js",
+  "browser": "dist/reversim-machine.umd.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && rollup -c",
+    "watch": "rollup -c --watch",
+    "servelib": "npx http-server dist  --cors",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-image": "^3.0.3",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.1",
+    "@rollup/plugin-url": "^8.0.2",
+    "rollup": "^3.29.5",
     "vite": "^6.2.0"
   },
   "dependencies": {

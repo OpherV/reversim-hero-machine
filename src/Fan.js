@@ -35,13 +35,20 @@ const fanConfig = {
             "shapeName": "fanBlades",
             "x": 100,
             "y": 238
+        },
+        {
+            "type": "static",
+            "id": "windMachine",
+            "sprite": "windMachine",
+            "shapeName": "windMachine",
+            "x": 103.125,
+            "y": 64.625
         }
     ]
 }
 
 let generalContext;
 let phaserContext;
-let shapes;
 
 let fanSprite;
 let blades;

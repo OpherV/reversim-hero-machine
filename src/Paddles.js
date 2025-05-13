@@ -1,4 +1,4 @@
-// Paddle-related functionality
+import * as Phaser from "phaser"
 import { attachToPhysics } from './utils.js';
 import { addObjectBuilder, createGroupFromConfig } from "./groupManager.js";
 

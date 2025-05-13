@@ -1,3 +1,4 @@
+import * as Phaser from "phaser";
 import {addObjectBuilder} from "./groupManager.js";
 
 const conveyorSpeed = 0.5;
