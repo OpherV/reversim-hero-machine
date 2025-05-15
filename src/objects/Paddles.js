@@ -1,6 +1,6 @@
-import * as Phaser from "phaser"
-import { attachToPhysics } from './utils.js';
-import { addObjectBuilder, createGroupFromConfig } from "./groupManager.js";
+import { Math as PhaserMath } from "phaser"
+import { attachToPhysics } from '../logic/utils.js';
+import { addObjectBuilder, createGroupFromConfig } from "../logic/groupManager.js";
 
 const paddleGroupConfig = {
     id: "paddles",
@@ -14,7 +14,7 @@ const paddleGroupConfig = {
             y: 150,
             w: 150,
             h: 10,
-            angle: Phaser.Math.DegToRad(30),
+            angle: PhaserMath.DegToRad(30),
         },
         {
             id: "paddle2",
@@ -23,7 +23,7 @@ const paddleGroupConfig = {
             y: 250,
             w: 150,
             h: 10,
-            angle: Phaser.Math.DegToRad(-30),
+            angle: PhaserMath.DegToRad(-30),
         },
     ]
 }

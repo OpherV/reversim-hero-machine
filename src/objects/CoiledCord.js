@@ -1,7 +1,7 @@
 // CoiledCord.js
 // Procedural coiled cord (phone cord style) between two objects with spring physics and rip behavior
 
-import { getMachineObjectById } from "./groupManager.js";
+import { getMachineObjectById } from "../logic/groupManager.js";
 
 let globalCord = null;
 let matterConstraint = null;

@@ -13,7 +13,7 @@
     "dev": "vite",
     "build": "vite build && rollup -c",
     "watch": "rollup -c --watch",
-    "servelib": "npx http-server dist  --cors",
+    "servelib": "npx http-server .  --cors",
     "preview": "vite preview"
   },
   "devDependencies": {

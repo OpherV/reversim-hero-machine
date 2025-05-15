@@ -1,5 +1,5 @@
-import * as Phaser from "phaser";
-import {addObjectBuilder} from "./groupManager.js";
+import { Curves as PhaserCurves } from "phaser";
+import {addObjectBuilder} from "../logic/groupManager.js";
 
 const conveyorSpeed = 0.5;
 const DASH_LENGTH = 10;
@@ -146,7 +146,7 @@ function drawConveyorBelt(graphics, x, y, width, height, numCircles, dashLength,
     // Draw dashed outline using ellipseTo for rounded corners
     graphics.lineStyle(4, 0x222222, 1);
     const r = height / 2;
-    const path = new Phaser.Curves.Path(x + r, y); // Start at top-left corner (after rounding)
+    const path = new PhaserCurves.Path(x + r, y); // Start at top-left corner (after rounding)
     path.lineTo(x + width - r, y); // Top side
     path.ellipseTo(r, r, 270, 360, false, 0); // Top-right corner
     path.lineTo(x + width, y + height - r); // Right side

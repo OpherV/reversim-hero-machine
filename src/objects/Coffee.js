@@ -1,5 +1,5 @@
-import * as Phaser from "phaser";
-import {createGroupFromConfig, getMachineObjectById} from "./groupManager.js";
+import { Math as PhaserMath, Geom as PhaserGeom } from "phaser";
+import {createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
 
 const coffeeConfig = {
     "id": "coffeeGroup",
@@ -75,9 +75,9 @@ function createCoffeeSplash(coffeeCup, splashNormal, splashSpeed = { min: 160, m
     // Calculate the splash direction (opposite to the collision normal)
     let splashAngle;
     if (splashNormal) {
-        splashAngle = Phaser.Math.RadToDeg(Math.atan2(splashNormal.y, splashNormal.x)) + coffeeCup.angle;
+        splashAngle = PhaserMath.RadToDeg(Math.atan2(splashNormal.y, splashNormal.x)) + coffeeCup.angle;
     } else {
-        splashAngle = Phaser.Math.RadToDeg(coffeeCup.angle) - 90;
+        splashAngle = PhaserMath.RadToDeg(coffeeCup.angle) - 90;
     }
 
     // console.log(`Splash angle: ${splashAngle} degrees`);
@@ -98,7 +98,7 @@ function createCoffeeSplash(coffeeCup, splashNormal, splashSpeed = { min: 160, m
         blendMode: 'SCREEN', // Add blend mode for a more liquid-like glow
         emitZone: {
             type: 'edge',
-            source: new Phaser.Geom.Circle(0, -5, 5),
+            source: new PhaserGeom.Circle(0, -5, 5),
             quantity: 30,
             yoyo: false
         }

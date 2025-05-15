@@ -1,6 +1,6 @@
 import { createPaddle } from './Paddles.js';
-import { attachToPhysics } from './utils.js';
-import {addObjectBuilder, createGroupFromConfig, getMachineObjectById} from "./groupManager.js";
+import { attachToPhysics } from '../logic/utils.js';
+import {addObjectBuilder, createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
 
 let phaserContext;
 

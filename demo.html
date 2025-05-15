@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReversimMachine Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    #game-container {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 1px solid #ccc;
+      margin: 0 auto;
+    }
+    .controls {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ReversimMachine Demo</h1>
+
+  <div id="game-container"></div>
+
+  <div class="controls">
+    <button id="start-btn">Start Machine</button>
+    <button id="stop-btn">Stop Machine</button>
+    <label>
+      <input type="checkbox" id="debug-checkbox" checked> Debug Mode
+    </label>
+  </div>
+
+  
+  <!-- Load your library (in production, this would be the bundled version) -->
+  <script type="module">
+    import ReversimMachine from './dist/reversim-machine.esm.js';
+    
+    // DOM elements
+    const startBtn = document.getElementById('start-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const debugCheckbox = document.getElementById('debug-checkbox');
+    const gameContainer = document.getElementById('game-container');
+    
+    // Event listeners
+    startBtn.addEventListener('click', startMachine);
+    stopBtn.addEventListener('click', stopMachine);
+    
+    function startMachine() {
+      const debug = debugCheckbox.checked;
+      
+      // Initialize the machine with the container element and options
+      ReversimMachine.init(gameContainer, {
+        debug: debug,
+        width: 1500,
+        height: 800
+      });
+      
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    }
+    
+    function stopMachine() {
+      // Destroy the machine instance
+      ReversimMachine.destroy();
+      
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    }
+    
+    // Initially disable the stop button
+    stopBtn.disabled = true;
+
+    startMachine();
+  </script>
+</body>
+</html>

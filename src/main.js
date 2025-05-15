@@ -1,43 +1,43 @@
-import * as Phaser from "phaser";
-import { initConveyorBelt } from "./ConveyorBelt.js";
-import { initCoffee } from "./Coffee.js";
-import { initPaddles} from "./Paddles.js";
-import { initBookStack} from "./BookStack.js";
-import { initUtils } from "./utils.js";
-import { initComputer } from "./Computer.js";
-import { initFan } from "./Fan.js";
-import {getMachineObjectByBody, initGroupManager} from "./groupManager.js";
-import { initDragManager } from "./dragManager.js";
-import {drawCord, initCord, updateCord} from "./CoiledCord.js";
+import { Game, AUTO } from "phaser";
+import { initConveyorBelt } from "./objects/ConveyorBelt.js";
+import { initCoffee } from "./objects/Coffee.js";
+import { initPaddles} from "./objects/Paddles.js";
+import { initBookStack} from "./objects/BookStack.js";
+import { initUtils } from "./logic/utils.js";
+import { initComputer } from "./objects/Computer.js";
+import { initFan } from "./objects/Fan.js";
+import {getMachineObjectByBody, initGroupManager} from "./logic/groupManager.js";
+import { initDragManager } from "./logic/dragManager.js";
+import {drawCord, initCord, updateCord} from "./objects/CoiledCord.js";
 
 // Vite static asset imports (updated for Rollup/public directory structure)
-import shapesJson from '../public/assets/shapes.json';
-import ballImg from '../public/images/ball.png';
+import shapesJson from './assets/shapes.json';
+import ballImg from './images/ball.png';
 
-import coffeeCupImg from '../public/images/Cup.png';
-import coffeeMachineImg from '../public/images/coffeeMachine.png';
-import coffeeMachineCoverImg from '../public/images/coffeeMachineCover.png';
+import coffeeCupImg from './images/Cup.png';
+import coffeeMachineImg from './images/coffeeMachine.png';
+import coffeeMachineCoverImg from './images/coffeeMachineCover.png';
 
-import computerImg from '../public/images/Computer.png';
-import keyboardImg from '../public/images/Keyboard.png';
-import paddleImg from '../public/images/paddle.png';
+import computerImg from './images/Computer.png';
+import keyboardImg from './images/Keyboard.png';
+import paddleImg from './images/paddle.png';
 
-import coffeeParticleImg from '../public/images/coffeeParticle.png';
-import fanBaseImg from '../public/images/fanBase.png';
-import fanBladesImg from '../public/images/fanBlades.png';
-import windMachineImg from '../public/images/windMachine.png';
+import coffeeParticleImg from './images/coffeeParticle.png';
+import fanBaseImg from './images/fanBase.png';
+import fanBladesImg from './images/fanBlades.png';
+import windMachineImg from './images/windMachine.png';
 
-import book1Img from '../public/images/book1.png';
-import book2Img from '../public/images/book2.png';
-import book3Img from '../public/images/book3.png';
-import book4Img from '../public/images/book4.png';
-import book5Img from '../public/images/book5.png';
-import book6Img from '../public/images/book6.png';
-import book7Img from '../public/images/book7.png';
+import book1Img from './images/book1.png';
+import book2Img from './images/book2.png';
+import book3Img from './images/book3.png';
+import book4Img from './images/book4.png';
+import book5Img from './images/book5.png';
+import book6Img from './images/book6.png';
+import book7Img from './images/book7.png';
 
-import smoke1Img from '../public/images/smoke1.png';
-import smoke2Img from '../public/images/smoke2.png';
-import smoke3Img from '../public/images/smoke3.png';
+import smoke1Img from './images/smoke1.png';
+import smoke2Img from './images/smoke2.png';
+import smoke3Img from './images/smoke3.png';
 
 let phaserContext;
 let generalContext = {
@@ -59,12 +59,15 @@ function createBall() {
 }
 
 const createConfig = (domElement, options = {}) => {
-    const { debug = false, width = 1100, height = 1100 } = options;
-    
+    const bb = domElement.getBoundingClientRect();
+    const { debug = false, width, height} = options;
+    const finalWidth = bb.width ?? 1100;
+    const finalHeight = bb.height ?? 1100;
+    console.log(finalWidth, finalHeight)
     return {
-        type: Phaser.AUTO,
-        width,
-        height,
+        type: AUTO,
+        width: finalWidth,
+        height: finalHeight,
         transparent: true,
         parent: domElement,
         input: { mouse: { preventDefaultWheel: false } },
@@ -73,6 +76,11 @@ const createConfig = (domElement, options = {}) => {
             matter: {
                 ...(debug ? { debug: { showCollisions: false } } : {}),
             }
+        },
+        scale: {
+          width: finalWidth,
+           zoom: 0.6
+
         },
         scene: {
             preload() {
@@ -134,6 +142,10 @@ const createConfig = (domElement, options = {}) => {
                     callback: createBall,
                     loop: true
                 });
+
+                // this.cameras.main.setZoom(0.45);
+                // this.cameras.main.setPosition(-300, -200);
+
             },
 
             update() {
@@ -185,7 +197,7 @@ const ReversimMachine = {
         }
         
         const config = createConfig(domElement, options);
-        game = new Phaser.Game(config);
+        game = new Game(config);
         
         return game;
     },

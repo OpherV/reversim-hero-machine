@@ -1,5 +1,5 @@
-import * as Phaser from "phaser";
-const Matter = Phaser.Physics.Matter.Matter
+import { Physics } from "phaser";
+const Matter = Physics.Matter.Matter
 import {getGroupById, getMachineObjectByBody} from "./groupManager.js";
 
 let phaserContext;
@@ -168,7 +168,7 @@ function registerPhysicsItemDrag(){
             const swingThreshold = centerNoSwingRatio * maxRadius;
             if (distToCenter >= swingThreshold) {
                 // Only allow swing if grabbed outside the center circle
-                grabConstraint = Matter.Constraint.create({
+                grabConstraint = Physics.Matter.Constraint.create({
                     pointA: { x: pointer.worldX, y: pointer.worldY },
                     bodyB: grabbedBody,
                     pointB: { x: grabOffset.x, y: grabOffset.y },

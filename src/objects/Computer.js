@@ -1,4 +1,4 @@
-import {createGroupFromConfig, getMachineObjectById} from "./groupManager.js";
+import {createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
 
 const computerConfig = {
     "id": "computerGroup",
