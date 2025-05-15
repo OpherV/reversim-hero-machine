@@ -116,12 +116,13 @@ export function startSmoke(options = {}) {
         lifespan: { min: 2000, max: 3000 },
         gravityY: -50 * smokeConfig.distance / 150 * smokeConfig.speedY,
         blendMode: 'NORMAL',
+        frequency: 9999999,
         tint: 0x999999,
         emitCallback: (particle) => {
             particle.velocityX = Math.sin(Date.now() / 1000) * 10 * smokeConfig.speedX;
             particle.rotation = Math.random() * Math.PI * 2;
             particle.rotateSpeed = (Math.random() * 0.02 + 0.01) * smokeConfig.rotation;
-        }
+        },
     });
     smokeEmitter2 = phaserContext.add.particles(0, 0, 'smoke2', {
         speed: { min: 15 * smokeConfig.speedY, max: 36 * smokeConfig.speedY * smokeConfig.amount },
@@ -132,7 +133,7 @@ export function startSmoke(options = {}) {
         gravityY: -45 * smokeConfig.distance / 150 * smokeConfig.speedY,
         blendMode: 'NORMAL',
         tint: 0x888888,
-        emitCallback: (particle) => {
+        frequency: 9999999,        emitCallback: (particle) => {
             particle.velocityX = Math.cos(Date.now() / 1200) * 8 * smokeConfig.speedX;
             particle.rotation = Math.random() * Math.PI * 2;
             particle.rotateSpeed = (Math.random() * -0.03 - 0.01) * smokeConfig.rotation;
@@ -147,13 +148,14 @@ export function startSmoke(options = {}) {
         gravityY: -55 * smokeConfig.distance / 150 * smokeConfig.speedY,
         blendMode: 'NORMAL',
         tint: 0x777777,
+        frequency: 9999999,
         emitCallback: (particle) => {
             particle.velocityX = Math.sin(Date.now() / 900) * 12 * smokeConfig.speedX;
             particle.rotation = Math.random() * Math.PI * 2;
             particle.rotateSpeed = (Math.random() * 0.04 + 0.02) * smokeConfig.rotation;
             particle.rotateDirection = 1;
             particle.rotateTimer = 0;
-        }
+        },
     });
 
     // Add an update event to emit particles at the current computer position

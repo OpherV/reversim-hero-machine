@@ -15,6 +15,7 @@
       aspect-ratio: 1;
       border: 1px solid #ccc;
       margin: 0 auto;
+      background: #e5e5e5;
     }
     .controls {
       max-width: 800px;
@@ -23,12 +24,24 @@
       background: #f5f5f5;
       border-radius: 5px;
     }
+
+    #game-stage{
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      left: 300px;
+      top: 600px;
+      background: blue;
+      opacity: 0.1;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
   <h1>ReversimMachine Demo</h1>
 
   <div id="game-container"></div>
+  <div id="game-stage"></div>
 
   <div class="controls">
     <button id="start-btn">Start Machine</button>
@@ -59,8 +72,9 @@
       // Initialize the machine with the container element and options
       ReversimMachine.init(gameContainer, {
         debug: debug,
-        width: 1500,
-        height: 800
+        browserTargetBoundingBox: document.getElementById('game-stage'),
+        frameTopLeft: {x: 0, y: 0},
+        frameBottomRight: {x: 1000, y: 1000}
       });
       
       startBtn.disabled = true;
