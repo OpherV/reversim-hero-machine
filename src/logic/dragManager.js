@@ -32,8 +32,8 @@ function registerStaticItemDrag(){
         draggableObject = bodiesUnderPointer.find(body => body.isStatic); // Pick the static one
         if (draggableObject) {
             pointerOffset = {
-                x: pointer.x - draggableObject.position.x,
-                y: pointer.y - draggableObject.position.y
+                x: pointer.worldX - draggableObject.position.x,
+                y: pointer.worldY - draggableObject.position.y
             }
         }
     });
@@ -42,11 +42,11 @@ function registerStaticItemDrag(){
         const isCtrlPressed = pointer.event.ctrlKey || pointer.event.metaKey;
 
         if (draggableObject) {
-            Matter.Body.setPosition(draggableObject, { x: pointer.x, y: pointer.y });
+            Matter.Body.setPosition(draggableObject, { x: pointer.worldX, y: pointer.worldY });
             const group = getGroupFromDraggableObject(draggableObject);
 
             if (draggableObject.label === 'groupHandle') {
-                group.origin = {x: pointer.x, y: pointer.y };
+                group.origin = {x: pointer.worldX, y: pointer.worldY };
 
                 if (isCtrlPressed) {
                     const group = getGroupById(draggableObject.group.id)
@@ -61,8 +61,8 @@ function registerStaticItemDrag(){
                         }
                     });
                 } else {
-                    group.origin.x = pointer.x;
-                    group.origin.y = pointer.y;
+                    group.origin.x = pointer.worldX;
+                    group.origin.y = pointer.worldY;
 
                     group.objects.forEach(machineObj => {
                         const x = group.origin.x +  machineObj.relativePosition.x;
@@ -82,11 +82,11 @@ function registerStaticItemDrag(){
             } else {
 
                 const machineObj = getMachineObjectByBody(draggableObject);
-                machineObj.relativePosition.x = pointer.x - pointerOffset.x - group.origin.x;
-                machineObj.relativePosition.y = pointer.y - pointerOffset.y - group.origin.y;
+                machineObj.relativePosition.x = pointer.worldX - pointerOffset.x - group.origin.x;
+                machineObj.relativePosition.y = pointer.worldY - pointerOffset.y - group.origin.y;
                 Matter.Body.setPosition(draggableObject, {
-                    x: pointer.x - pointerOffset.x,
-                    y: pointer.y - pointerOffset.y
+                    x: pointer.worldX - pointerOffset.x,
+                    y: pointer.worldY - pointerOffset.y
                 });
             }
 
