@@ -168,7 +168,7 @@ function registerPhysicsItemDrag(){
             const swingThreshold = centerNoSwingRatio * maxRadius;
             if (distToCenter >= swingThreshold) {
                 // Only allow swing if grabbed outside the center circle
-                grabConstraint = Physics.Matter.Constraint.create({
+                grabConstraint = Matter.Constraint.create({
                     pointA: { x: pointer.worldX, y: pointer.worldY },
                     bodyB: grabbedBody,
                     pointB: { x: grabOffset.x, y: grabOffset.y },
