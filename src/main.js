@@ -1,4 +1,6 @@
-import { Game, AUTO } from "phaser";
+import { Game, Scale, AUTO } from "phaser";
+import {getFrameWidth, initRender} from "./logic/render.js";
+import { initDragManager } from "./logic/dragManager.js";
 import { initConveyorBelt } from "./objects/ConveyorBelt.js";
 import { initCoffee } from "./objects/Coffee.js";
 import { initPaddles} from "./objects/Paddles.js";
@@ -7,7 +9,6 @@ import { initUtils } from "./logic/utils.js";
 import { initComputer } from "./objects/Computer.js";
 import { initFan } from "./objects/Fan.js";
 import {getMachineObjectByBody, initGroupManager} from "./logic/groupManager.js";
-import { initDragManager } from "./logic/dragManager.js";
 import {drawCord, initCord, updateCord} from "./objects/CoiledCord.js";
 
 // Vite static asset imports (updated for Rollup/public directory structure)
@@ -60,44 +61,24 @@ function createBall() {
 
 const createConfig = (domElement, options = {}) => {
     const canvasBB = domElement.getBoundingClientRect();
-    const { debug = false,  frameTopLeft = {x:0,y:0}, frameBottomRight = {x:1000,y:1000}, browserTargetBoundingBox } = options;
-    const finalWidth = canvasBB.width ;
-    const finalHeight = canvasBB.height;
-
-    const frameWidth = frameBottomRight.x - frameTopLeft.x;
-    const frameHeight = frameBottomRight.y - frameTopLeft.y;
-
-
-    let btBoxBB = null;
-    if (browserTargetBoundingBox) {
-        const btBox = (typeof browserTargetBoundingBox === 'string') ? document.querySelector(browserTargetBoundingBox) : browserTargetBoundingBox;
-        if (btBox) {
-            btBoxBB = btBox.getBoundingClientRect();
-        }
-    } else {
-        btBoxBB = canvasBB
-    }
-
-    const zoomX = btBoxBB.width / frameWidth;
-    const zoomY = btBoxBB.height / frameHeight;
-    const zoom = Math.min(zoomX, zoomY);
 
     return {
         type: AUTO,
-        width: finalWidth,
-        height: finalHeight,
+        width: canvasBB.width,
+        height: canvasBB.height,
         transparent: true,
         parent: domElement,
         input: { mouse: { preventDefaultWheel: false } },
         physics: {
             default: "matter",
             matter: {
-                ...(debug ? { debug: { showCollisions: false } } : {}),
+                ...(options.debug ? { debug: { showCollisions: false } } : {}),
             }
         },
         scale: {
-          width: finalWidth,
-          height: finalHeight,
+          width: canvasBB.width,
+          height: canvasBB.height,
+          mode: Scale.RESIZE,
         },
         scene: {
             preload() {
@@ -133,6 +114,9 @@ const createConfig = (domElement, options = {}) => {
 
             create() {
                 phaserContext = generalContext.phaserContext =  this;
+                initRender(phaserContext, domElement ,options);
+
+
                 phaserContext.matter.add.mouseSpring();
 
                 shapes = this.cache.json.get('shapes');
@@ -159,80 +143,22 @@ const createConfig = (domElement, options = {}) => {
                     callback: createBall,
                     loop: true
                 });
-
-                // CAMERA FIT: Fit frameTopLeft/frameBottomRight to gameworldBoundingBox area within canvas
-                const cam = this.cameras.main;
-
-                cam.setZoom(zoom);
-                const resetXOffset = finalWidth * (1 - zoom) / (2 * zoom)
-                const resetYOffset = finalHeight * (1 - zoom) / (2 * zoom)
-
-                // set to top left, then move to
-                cam.setScroll(
-                    resetXOffset - (btBoxBB.left - canvasBB.left) / zoom,
-                    resetYOffset - (btBoxBB.top - canvasBB.top) / zoom
-                );
-
-                // 693 =  (300 - 25) / 0.4
-                // 693 = (btBox.left - canvasBb.left) / zoom
-
-                // console.log(bboxWidth, bboxHeight);
-                // console.log(finalWidth / zoom);
-                // cam.setBounds(0, 0, width, height);
-                // cam.setSize(finalWidth / zoom, finalHeight / zoom)
-
-                // cyan = finalWidth * zoom * 2
-                // all canvas in game world = cyan / 0.4
-                // (all canvas in game world - cyan) / 2
-
-                // (cyan / 0.4 - cyan) / 2
-                // cyan( 0.4 - 1) /2
-                // cyan ( zoom - 1) / 2
-                // finalWidth * zoom * 2  * ( zoom - 1) /2
-                // 2 * (finalWidth * zoom * (zoom -1))
-                // 2 * (1466 * 0.4 ( 0.4 - 1))
-
-
-                // reset to 0
-                // x_offset = finalWidth * (1 - zoom) / (2 * zoom)
-
-
-
-
-
-
-
-                // const graphics = this.add.graphics();
-                // graphics.fillStyle(0x00ffff, 0.4);
-                // graphics.fillRect(0, 0,
-                //     finalWidth,
-                //     finalHeight);
-                //
-                // graphics.fillStyle(0xff0000, 0.2);
-                //
-                // graphics.fillRect(frameTopLeft.x, frameTopLeft.y,
-                //     frameBottomRight.x - frameTopLeft.x,
-                //     frameBottomRight.y - frameTopLeft.y);
-                //
             },
 
             update() {
                 const removalDist = objectRemovalDistance; // configurable
-                const frameWidth = finalWidth / zoom;
-                const frameHeight = finalWidth / zoom;
+                const frame = getFrameWidth()
                 updateCord();
                 drawCord(cordGraphics);
 
                 this.matter.world.engine.world.bodies.forEach((body) => {
                     const {x, y} = body.position;
-                    // Calculate distance to nearest frame edge
-                    const dx = Math.min(Math.abs(x), Math.abs(frameWidth - x));
-                    const dy = Math.min(Math.abs(y), Math.abs(frameHeight - y));
 
+                    // todo fix top/left bounds
                     // Remove bodies that are out of bounds by at least removalDist
                     if (
-                        x < -removalDist || x > frameWidth + removalDist ||
-                        y < -removalDist || y > frameHeight + removalDist
+                        x < -removalDist || x > frame.width + removalDist ||
+                        y < -removalDist || y > frame.height + removalDist
                     ) {
                         const machineObject = getMachineObjectByBody(body);
                         if (machineObject) {
