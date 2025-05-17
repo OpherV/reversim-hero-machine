@@ -85,4 +85,25 @@ export function addStatic(x, y, options = {}) {
     };
 }
 
+export function debounce(fn, delay, options = { leading: true, trailing: false}){
+    let timeout;
+    let isLeadingInvoked = false;
 
+    return (...args) => {
+        const context = this;
+
+        if (timeout) clearTimeout(timeout);
+
+        if (options.leading && !timeout) {
+            fn.apply(context, args);
+            isLeadingInvoked = true;
+        } else isLeadingInvoked = false;
+
+        timeout = setTimeout(() => {
+            if (options.trailing && !isLeadingInvoked)
+                fn.apply(context, args);
+
+            timeout = null;
+        }, delay)
+    }
+}

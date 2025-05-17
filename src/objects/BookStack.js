@@ -7,8 +7,8 @@ let phaserContext;
 const bookConfig = {
     "id": "bookGroup",
     "origin": {
-        "x": 368.5,
-        "y": 869
+        "x": 400,
+        "y": 870.3333496120235
     },
     "showHandle": true,
     "objects": [
@@ -24,7 +24,7 @@ const bookConfig = {
             "type": "book",
             "id": "book6",
             "order": 6,
-            "x": 197.625,
+            "x": 115.625,
             "y": -194.875,
             "width": 125,
             "height": 20,
@@ -35,7 +35,7 @@ const bookConfig = {
             "type": "book",
             "id": "book5",
             "order": 5,
-            "x": 172.875,
+            "x": 142.875,
             "y": -160.5,
             "width": 124,
             "height": 33,
@@ -46,7 +46,7 @@ const bookConfig = {
             "type": "book",
             "id": "book4",
             "order": 4,
-            "x": 204.5,
+            "x": 164.5,
             "y": -131.625,
             "width": 125,
             "height": 12,
@@ -57,7 +57,7 @@ const bookConfig = {
             "type": "book",
             "id": "book3",
             "order": 3,
-            "x": 183.875,
+            "x": 164,
             "y": -102.75,
             "width": 112,
             "height": 33,
@@ -68,7 +68,7 @@ const bookConfig = {
             "type": "book",
             "id": "book2",
             "order": 2,
-            "x": 155,
+            "x": 145,
             "y": -65.625,
             "width": 125,
             "height": 26,
@@ -142,27 +142,6 @@ function createBook(x, y, width, height, type, title) {
         body: book.body,
         phaserObject: book
     }
-}
-
-function createBookStack(stackOrigin) {
-    // Create the base paddle for the book stack
-    createPaddle(stackOrigin.x, stackOrigin.y, 150, 10, 0);
-
-    // Stack books on the paddle with the new object-based configuration
-    [
-        { xOffset: 40, width: 100, height: 15, type: 5, title: "Stack Overflow" },
-        { xOffset: 20, width: 100, height: 15, bookType: 3, title: "The Docs" },
-        { xOffset: -10, width: 100, height: 20, bookType: 1, title: "Edge Cases" },
-        { xOffset: 10, width: 100, height: 30, bookType: 2, title: "404" },
-        { xOffset: 14, width: 100, height: 10, bookType: 4, title: "Git Happens" },
-        { xOffset: 20, width: 100, height: 20, bookType: 7, title: "Man & Woman Pages" },
-        { xOffset: 0, width: 100, height: 15, bookType: 6, title: "Clean-ish Code" },
-    ].reverse().reduce((prevY, book) => {
-        const x = stackOrigin.x + book.xOffset;
-        const y = prevY - (book.height / 2);
-        createBook(x, y, book.width, book.height, book.bookType, book.title);
-        return y - (book.height / 2);
-    }, stackOrigin.y - 5); // should use paddle height
 }
 
 export function initBookStack(context) {

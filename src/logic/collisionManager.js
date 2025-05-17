@@ -72,7 +72,9 @@ function getValidatedPair(handlerConfig, bodyA, bodyB) {
 }
 
 function validateBody(body, validator) {
-    if (typeof validator === 'string') {
+    if (validator === true) {
+        return true;
+    } else if (typeof validator === 'string') {
         return body.label === validator;
     } else if (typeof validator === 'function') {
         return validator(body);

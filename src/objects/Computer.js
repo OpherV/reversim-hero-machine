@@ -1,5 +1,8 @@
+import { Math as PhaserMath } from "phaser";
 import {createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
 import ComputerScreen from "./ComputerScreen.js";
+import {addCollisionHandler} from "../logic/collisionManager.js";
+import {debounce} from "../logic/utils.js";
 
 const computerConfig = {
     "id": "computerGroup",
@@ -49,6 +52,7 @@ let generalContext;
 let phaserContext;
 
 let computerSprite;
+let computerScreen;
 let smokeEmitter1;
 let smokeEmitter2;
 let smokeEmitter3;
@@ -72,13 +76,32 @@ export function initComputer(context) {
     computerSprite.once('destroy', () => {
         stopSmoke();
     });
-    const emitters = startSmoke();
+
 
    setupComputerScreen();
+   let faultLevel = 0;
+   const debouncedShowNoise= debounce(() => {
+       faultLevel += 0.1;
+       faultLevel = PhaserMath.Clamp(faultLevel, 0, 0.7);
+       computerScreen.showNoise();
+       computerScreen.setFaultAmount(faultLevel);
+
+   //     const emitters = startSmoke();
+   }, 500);
+
+   // quick hack to prevent this from firing at start
+   setTimeout(()=> {
+       addCollisionHandler({
+           firstValidator: 'keyboard',
+           secondValidator: true,
+           collisionstart: debouncedShowNoise
+       })
+   }, 2000);
+
 }
 
 function setupComputerScreen(){
-    const computerScreen = new ComputerScreen(phaserContext, 100, 100, 118, 116);
+    computerScreen = new ComputerScreen(phaserContext, 100, 100, 118, 116);
     computerScreen.setDepth(100);
     computerScreen.setScale(0.6)
     phaserContext.add.existing(computerScreen);

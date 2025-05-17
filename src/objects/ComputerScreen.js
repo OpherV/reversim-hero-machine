@@ -225,4 +225,46 @@ export default class ComputerScreen extends GameObjects.Container {
       }
     }
   }
+
+  /**
+   * Shows a glitched noise overlay on top of the screen for a short duration.
+   * @param {number} duration - Duration in ms to show the noise (default 300)
+   */
+  showNoise(duration = 300) {
+    // Prevent multiple overlays
+    if (this._noiseOverlay) return;
+    const g = this.scene.add.graphics();
+    g.setDepth(9999); // Ensure on top
+    // Draw glitch effect: random rectangles and lines
+    for (let i = 0; i < 40; i++) {
+      const w = 10 + Math.random() * 40;
+      const h = 3 + Math.random() * 16;
+      const x = Math.random() * (this.width - w);
+      const y = Math.random() * (this.height - h);
+      const color = PhaserMath.Between(0x222222, 0xffffff);
+      g.fillStyle(color, Math.random() * 0.7 + 0.3);
+      g.fillRect(x, y, w, h);
+    }
+    // Add static noise dots
+    for (let i = 0; i < 140; i++) {
+      const dotW = Math.random() * 2 + 1;
+      const dotH = Math.random() * 2 + 1;
+      const x = Math.random() * (this.width - dotW);
+      const y = Math.random() * (this.height - dotH);
+      const color = PhaserMath.Between(0x888888, 0xffffff);
+      g.fillStyle(color, Math.random() * 0.5 + 0.2);
+      g.fillRect(x, y, dotW, dotH);
+    }
+    g.x = 0;
+    g.y = 0;
+    this.add(g); // Add to container
+    this._noiseOverlay = g;
+    // Remove after duration
+    this.scene.time.delayedCall(duration, () => {
+      if (this._noiseOverlay) {
+        this._noiseOverlay.destroy();
+        this._noiseOverlay = null;
+      }
+    });
+  }
 }
