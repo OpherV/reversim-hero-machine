@@ -1,5 +1,6 @@
 import { Math as PhaserMath, Geom as PhaserGeom } from "phaser";
 import {createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
+import {addCollisionHandler} from "../logic/collisionManager.js";
 
 const coffeeConfig = {
     "id": "coffeeGroup",
@@ -117,43 +118,26 @@ function createCoffeeMachine() {
 
 function setupCoffeeCollisionDetection() {
 
-    // todo refactor collision
-    // Add collision detection for coffee cups
-    phaserContext.matter.world.on('collisionstart', (event) => {
-        event.pairs.forEach(({ bodyA, bodyB, collision }) => {
-            let coffeeCup, otherBody;
-            bodyA = bodyA.parent ?? bodyA;
-            bodyB = bodyB.parent ?? bodyB;
+    addCollisionHandler({
+        firstValidator: (body) => {
+            return body.parent?.label === 'coffeeCup' && body.gameObject?.hasCoffee
+        },
+        secondValidator: (body) => body, //todo make nicer
+        collisionstart: (bodyA, bodyB) => {
+            let coffeeCup = bodyA.parent ?? bodyA;
+            // Check if the coffee cup is old enough to produce a splash effect (2000ms = 2 seconds)
+            const minCupAge = 2000; // milliseconds
+            const cupAge = Date.now() - coffeeCup.gameObject.creationTime;
 
-            if (bodyA.label === 'coffeeCup' && bodyA.gameObject && bodyA.gameObject.hasCoffee) {
-                coffeeCup = bodyA;
-                otherBody = bodyB;
-            } else if (bodyB.label === 'coffeeCup' && bodyB.gameObject && bodyB.gameObject.hasCoffee) {
-                coffeeCup = bodyB;
-                otherBody = bodyA;
+            if (cupAge >= minCupAge) {
+                // const collisionPoint = collision.supports[0] || coffeeCup.position;
+                createCoffeeSplash(coffeeCup, null);
+
+                coffeeCup.gameObject.hasCoffee = false;
             }
+        },
 
-            // If a coffee cup with coffee collided with something
-            if (coffeeCup && otherBody) {
-                // Check if the coffee cup is old enough to produce a splash effect (2000ms = 2 seconds)
-                const minCupAge = 2000; // milliseconds
-                const cupAge = Date.now() - coffeeCup.gameObject.creationTime;
-
-                if (cupAge >= minCupAge) {
-                    // Calculate collision normal (direction from coffee cup to other body)
-                    const collisionNormal = {
-                        x: coffeeCup.velocity.x,
-                        y: coffeeCup.velocity.y
-                    };
-
-                    // const collisionPoint = collision.supports[0] || coffeeCup.position;
-                    createCoffeeSplash(coffeeCup, null);
-
-                    coffeeCup.gameObject.hasCoffee = false;
-                }
-            }
-        });
-    });
+    })
 }
 
 function setupCoffeeCupTimer() {
