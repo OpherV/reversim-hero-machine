@@ -1,4 +1,5 @@
 import {createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
+import ComputerScreen from "./ComputerScreen.js";
 
 const computerConfig = {
     "id": "computerGroup",
@@ -72,6 +73,28 @@ export function initComputer(context) {
         stopSmoke();
     });
     const emitters = startSmoke();
+
+   setupComputerScreen();
+}
+
+function setupComputerScreen(){
+    const computerScreen = new ComputerScreen(phaserContext, 100, 100, 118, 116);
+    computerScreen.setDepth(100);
+    computerScreen.setScale(0.6)
+    phaserContext.add.existing(computerScreen);
+
+    const screenOffset = { x: -51, y: -55 };
+    phaserContext.events.on('update', () => {
+        const cos = Math.cos(computerSprite.rotation);
+        const sin = Math.sin(computerSprite.rotation);
+        const rotatedOffsetX = screenOffset.x * cos - screenOffset.y * sin;
+        const rotatedOffsetY = screenOffset.x * sin + screenOffset.y * cos;
+        computerScreen.setPosition(
+            computerSprite.x + rotatedOffsetX,
+            computerSprite.y + rotatedOffsetY
+        );
+        computerScreen.setRotation(computerSprite.rotation);
+    });
 }
 
 /**

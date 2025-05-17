@@ -145,7 +145,7 @@ const createConfig = (domElement, options = {}) => {
                 });
             },
 
-            update() {
+            update(time, delta) {
                 const removalDist = objectRemovalDistance; // configurable
                 const frame = getFrameWidth()
                 updateCord();
