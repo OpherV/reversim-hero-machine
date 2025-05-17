@@ -1,5 +1,6 @@
 import { Game, Scale, AUTO } from "phaser";
 import {getFrameWidth, initRender} from "./logic/render.js";
+import {initCollisionManager} from "./logic/collisionManager.js";
 import { initDragManager } from "./logic/dragManager.js";
 import { initConveyorBelt } from "./objects/ConveyorBelt.js";
 import { initCoffee } from "./objects/Coffee.js";
@@ -124,6 +125,7 @@ const createConfig = (domElement, options = {}) => {
                 initGroupManager(generalContext, shapes);
                 initUtils(generalContext);
                 initDragManager(generalContext)
+                initCollisionManager(phaserContext)
 
                 initPaddles(phaserContext, shapes);
                 initConveyorBelt(phaserContext)

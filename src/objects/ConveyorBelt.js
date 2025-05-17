@@ -1,5 +1,6 @@
 import { Curves as PhaserCurves } from "phaser";
 import {addObjectBuilder} from "../logic/groupManager.js";
+import {addCollisionHandler} from "../logic/collisionManager.js";
 
 const conveyorSpeed = 0.5;
 const DASH_LENGTH = 10;
@@ -20,73 +21,26 @@ export function initConveyorBelt(context) {
         );
     })
 
-
-    // todo refactor collisions
-    // Event listener for objects on the belt
-    phaserContext.matter.world.on('collisionstart', (event) => {
-        event.pairs.forEach(({ bodyA, bodyB }) => {
-            let object, belt;
-
-            if (bodyA.label === 'conveyor') {
-                object = bodyB;
-                belt = bodyA;
-            } else if (bodyB.label === 'conveyor') {
-                object = bodyA;
-                belt = bodyB;
-            }
-
-            if (object && object.isStatic === false) {
-                let objectToMove = object.parent ?? object;
-                objectToMove.originalFriction = objectToMove.friction;
-                objectToMove.friction = 0;
-                // Matter.Body.setVelocity(object, {x: object.velocity.x + 2, y: object.velocity.y});
-            }
-        });
-    });
-
-    phaserContext.matter.world.on('collisionend', (event) => {
-        event.pairs.forEach(({ bodyA, bodyB }) => {
-            let object, belt;
-
-            if (bodyA.label === 'conveyor') {
-                object = bodyB;
-                belt = bodyA;
-            } else if (bodyB.label === 'conveyor') {
-                object = bodyA;
-                belt = bodyB;
-            }
-
-            if (object && object.isStatic === false) {
-                let objectToMove = object.parent ?? object;
-                objectToMove.friction = objectToMove.originalFriction;
-            }
-        });
-    });
-
-    phaserContext.matter.world.on('collisionactive', (event) => {
-        event.pairs.forEach(({ bodyA, bodyB }) => {
-            let object, belt;
-
-            if (bodyA.label === 'conveyor') {
-                object = bodyB;
-                belt = bodyA;
-            } else if (bodyB.label === 'conveyor') {
-                object = bodyA;
-                belt = bodyB;
-            }
-
-            if (object && object.isStatic === false) {
-                let objectToMove = object.parent ?? object;
-
-                phaserContext.matter.body.setVelocity(objectToMove, {
-                    x: conveyorSpeed,
-                    y: object.velocity.y
-                });
-
-            }
-        });
-    });
-
+    addCollisionHandler({
+        firstValidator: 'conveyor',
+        secondValidator: (body) => body.isStatic === false,
+        collisionstart: (bodyA, bodyB) => {
+            let objectToMove = bodyB.parent ?? bodyB;
+            objectToMove.originalFriction = objectToMove.friction;
+            objectToMove.friction = 0;
+        },
+        collisionend: (bodyA, bodyB) => {
+            let objectToMove = bodyB.parent ?? bodyB;
+            objectToMove.friction = objectToMove.originalFriction;
+        },
+        collisionactive: (bodyA, bodyB) => {
+            let objectToMove = bodyB.parent ?? bodyB;
+            phaserContext.matter.body.setVelocity(objectToMove, {
+                x: Math.min(objectToMove.velocity.x + conveyorSpeed, conveyorSpeed),
+                y: bodyB.velocity.y
+            });
+        }
+    })
 }
 
 
