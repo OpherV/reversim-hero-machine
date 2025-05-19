@@ -40,6 +40,7 @@ import book7Img from './images/book7.png';
 import smoke1Img from './images/smoke1.png';
 import smoke2Img from './images/smoke2.png';
 import smoke3Img from './images/smoke3.png';
+import {initRobot} from "./objects/Robot.js";
 
 let phaserContext;
 let generalContext = {
@@ -136,6 +137,8 @@ const createConfig = (domElement, options = {}) => {
 
                 // Initialize the coiled cord after computer
                 initCord(phaserContext);
+
+                initRobot(phaserContext);
 
                 // Create Phaser graphics for the cord
                 cordGraphics = this.add.graphics();
