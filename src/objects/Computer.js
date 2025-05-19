@@ -107,7 +107,12 @@ function setupComputerScreen(){
     phaserContext.add.existing(computerScreen);
 
     const screenOffset = { x: -51, y: -55 };
-    phaserContext.events.on('update', () => {
+    function onUpdate() {
+        // computerSprite was destroyed
+        if (!computerSprite.scene) {
+            phaserContext.events.off('update', onUpdate);
+            return;
+        }
         const cos = Math.cos(computerSprite.rotation);
         const sin = Math.sin(computerSprite.rotation);
         const rotatedOffsetX = screenOffset.x * cos - screenOffset.y * sin;
@@ -117,7 +122,8 @@ function setupComputerScreen(){
             computerSprite.y + rotatedOffsetY
         );
         computerScreen.setRotation(computerSprite.rotation);
-    });
+    };
+    phaserContext.events.on('update', onUpdate);
 }
 
 /**
