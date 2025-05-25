@@ -61,6 +61,7 @@ const objectRemovalDistance = 200;
 
 function createBall() {
     const ball = phaserContext.matter.add.sprite(100, 50, 'ball', null, {
+        label: 'ball',
         restitution: 0.9,
         friction: 0.002,
         circleRadius: 15,
@@ -157,7 +158,7 @@ const createConfig = (domElement, options = {}) => {
                 cordGraphics = this.add.graphics();
 
                 this.time.addEvent({
-                    delay: 1500,
+                    delay: 2500,
                     callback: createBall,
                     loop: true
                 });

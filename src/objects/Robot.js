@@ -29,7 +29,7 @@ export function initRobot(context) {
     phaserContext = context;
 
     //todo robot should be in config
-    robotArm = new RobotArm(context, 450, 440);
+    robotArm = new RobotArm(context, 450, 425);
     phaserContext.add.existing(robotArm);
 
     createGroupFromConfig(robotConfig);
@@ -72,8 +72,8 @@ export function throwCup() {
         y: 600
     }
     const location3 = {
-        x: PhaserMath.Between(390 - 100, 600),
-        y: PhaserMath.Between(450, 580)
+        x: PhaserMath.Between(500, 600),
+        y: PhaserMath.Between(300, 500)
     }
 
     robotArm.setPincersDistance(60, pincerMoveTime);

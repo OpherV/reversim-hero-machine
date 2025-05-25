@@ -2,41 +2,50 @@ import { Math as PhaserMath, Geom as PhaserGeom } from "phaser";
 import {createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
 import {addCollisionHandler} from "../logic/collisionManager.js";
 
-const coffeeConfig = {
-    "id": "coffeeGroup",
-    "origin": {
-        "x": 75.625,
-        "y": 418
-    },
-    "showHandle": false,
-    "objects": [
-        {
-            "type": "static",
-            "id": "coffeeMachine",
-            "x": 112.375,
-            "y": 138,
-            "sprite": "coffeeMachine",
-            "shapeName": "coffeeMachine"
+const coffeeConfig =
+    {
+        "id": "coffeeGroup",
+        "origin": {
+            "x": 75.625,
+            "y": 418
         },
-        {
-            "type": "sprite",
-            "id": "coffeeMachineCover",
-            "sprite": "coffeeMachineCover",
-            "x": 86.375,
-            "y": 168,
-            "depth": 200
-        },
-        {
-            "type": "conveyor",
-            "id": "coffeeConveyor",
-            "x": 242,
-            "y": 206,
-            "w": 370,
-            "h": 37,
-            "depth": 10
-        }
-    ]
-}
+        "showHandle": false,
+        "objects": [
+            {
+                "type": "static",
+                "id": "coffeeMachine",
+                "x": 112.375,
+                "y": 138,
+                "sprite": "coffeeMachine",
+                "shapeName": "coffeeMachine"
+            },
+            {
+                "type": "sprite",
+                "id": "coffeeMachineCover",
+                "sprite": "coffeeMachineCover",
+                "x": 86.375,
+                "y": 168,
+                "depth": 200
+            },
+            {
+                "type": "conveyor",
+                "id": "coffeeConveyor",
+                "x": 242,
+                "y": 204,
+                "w": 370,
+                "h": 37,
+                "depth": 10
+            },
+            {
+                "type": "paddle",
+                "id": "coffeeBase",
+                "x": 204.07513442353257,
+                "y": 233.36520854331684,
+                "w": 450,
+                "h": 10
+            }
+        ]
+    }
 
 let phaserContext;
 let shapes;
@@ -140,11 +149,26 @@ function setupCoffeeCollisionDetection() {
     })
 }
 
-function setupCoffeeCupTimer() {
-    phaserContext.time.addEvent({
-        delay: 2200,
-        callback: createCoffeeCup,
-        loop: true
+function jiggleCoffeeMachine() {
+    const coffeeMachine = getMachineObjectById('coffeeMachine');
+    if (!coffeeMachine || !coffeeMachine.body) return;
+    const body = coffeeMachine.body;
+    const sprite = coffeeMachine;
+    const wasStatic = body.isStatic;
+    const jiggleAmount = PhaserMath.DegToRad(1);
+    phaserContext.tweens.add({
+        targets: body,
+        angle: { from: -jiggleAmount, to: jiggleAmount },
+        yoyo: true,
+        repeat: 2,
+        duration: 20,
+        onUpdate: () => {
+            sprite.rotation = body.angle;
+        },
+        onComplete: () => {
+            body.angle = 0;
+            sprite.rotation = 0;
+        }
     });
 }
 
@@ -247,13 +271,24 @@ function setupCoffeePourTrigger() {
     });
 }
 
+function setupBallCoffeeMachineCollision() {
+    addCollisionHandler({
+        firstValidator: 'ball',
+        secondValidator: body => body.parent?.label === 'coffeeMachine',
+        collisionstart: () => {
+            jiggleCoffeeMachine();
+            createCoffeeCup();
+        }
+    });
+}
+
 export function initCoffee(context, shapesData) {
     phaserContext = context;
     shapes = shapesData;
 
     createCoffeeMachine();
     setupCoffeeCollisionDetection();
-    setupCoffeeCupTimer();
     setupCoffeeTiltSplash();
     setupCoffeePourTrigger();
+    setupBallCoffeeMachineCollision();
 }
