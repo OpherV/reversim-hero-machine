@@ -40,6 +40,13 @@ import book7Img from './images/book7.png';
 import smoke1Img from './images/smoke1.png';
 import smoke2Img from './images/smoke2.png';
 import smoke3Img from './images/smoke3.png';
+
+import robotBase from './images/robotBase.png';
+import robotHead from './images/robotHead.png';
+import robotArm from './images/robotArm.png';
+import pincer1 from './images/pincer1.png';
+import pincer2 from './images/pincer2.png';
+
 import {initRobot} from "./objects/Robot.js";
 
 let phaserContext;
@@ -112,6 +119,12 @@ const createConfig = (domElement, options = {}) => {
                 this.load.image('smoke1', smoke1Img);
                 this.load.image('smoke2', smoke2Img);
                 this.load.image('smoke3', smoke3Img);
+
+                this.load.image('robotBase', robotBase);
+                this.load.image('robotHead', robotHead);
+                this.load.image('robotArm', robotArm);
+                this.load.image('pincer1', pincer1);
+                this.load.image('pincer2', pincer2);
             },
 
             create() {

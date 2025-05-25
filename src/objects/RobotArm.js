@@ -1,24 +1,40 @@
-import { Math as PhaserMath, GameObjects } from 'phaser';
+import { Math as PhaserMath } from 'phaser';
+import Container from 'phaser/src/gameobjects/container/Container.js';
 
-export default class RobotArm extends GameObjects.Container {
+// --- SPRITE OFFSETS (tweak as needed) ---
+const SPRITE_OFFSETS = {
+    base:   { x: 0,   y: -23.5,   angle: 0 },
+    boom:   { x: 0,   y: 0,   angle: Math.PI/2 },
+    head:   { x: 0,   y: 0,   angle: -Math.PI/2 },
+    pincerLeft:  { x: 0,   y: 0,   angle: Math.PI/2 },
+    pincerRight: { x: 0,   y: 0,   angle: Math.PI/2 },
+};
+
+
+export default class RobotArm extends Container {
     constructor(scene, x, y, options = {}) {
         super(scene, x, y);
         this.scene = scene;
         this.baseX = x;
         this.baseY = y;
         // Arm dimensions (can be tweaked)
-        this.boomLength = options.boomLength || 140;
-        this.headLength = options.headLength || 80;
-        this.pincerLength = options.pincerLength || 50;
-        this.pincerWidth = options.pincerWidth || 14;
+        this.boomLength = options.boomLength || 120;
+        this.headLength = options.headLength || 55;
+        this.pincerLength = options.pincerLength || 32;
+        this.pincerWidth = options.pincerWidth || 12;
         this.pincerMinDist = options.pincerMinDist || 16;
         this.pincerMaxDist = options.pincerMaxDist || 60;
+        this.headJointOffset = options.headJointOffset || 5; // how far back from boom end the head attaches
+        this.headJointLocalOffset = options.headJointLocalOffset || 20; // how far from head's rear the joint is
+        this.pincerDistanceFromHead = options.pincerDistanceFromHead || 18; // how far in front of the head the pincers are
         this.currentTween = null;
         this.currentPincerTween = null;
         // Physics group
         this.matter = scene.matter;
         // Create bodies
         this._createBodies();
+        // Create sprites
+        this._createSprites();
         // Add to scene
         scene.add.existing(this);
     }
@@ -28,31 +44,56 @@ export default class RobotArm extends GameObjects.Container {
         this.base = this.matter.add.rectangle(this.baseX, this.baseY, 30, 30, {isStatic: true, label: 'robot-base'});
         // Boom arm
         this.boom = this.matter.add.rectangle(this.baseX + this.boomLength/2, this.baseY, this.boomLength, 20, {isStatic: true, label: 'robot-boom'});
-        // Head
-        this.head = this.matter.add.rectangle(this.baseX + this.boomLength, this.baseY, this.headLength, 18, {isStatic: true, label: 'robot-head'});
-        // Pincers (left/right)
-        this.pincerLeft = this.matter.add.rectangle(this.baseX + this.boomLength + this.headLength, this.baseY - this.pincerMinDist/2, this.pincerLength, this.pincerWidth, {isStatic: true, label: 'robot-pincer-left'});
-        this.pincerRight = this.matter.add.rectangle(this.baseX + this.boomLength + this.headLength, this.baseY + this.pincerMinDist/2, this.pincerLength, this.pincerWidth, {isStatic: true, label: 'robot-pincer-right'});
-        // Constraints
-        this.boomJoint = this.matter.add.constraint(this.base, this.boom, 0, 1, {
-            pointA: {x: 0, y: 0},
-            pointB: {x: -this.boomLength/2, y: 0}
-        });
-        this.headJoint = this.matter.add.constraint(this.boom, this.head, 0, 1, {
-            pointA: {x: this.boomLength/2, y: 0},
-            pointB: {x: -this.headLength/2, y: 0}
-        });
-        // Pincer constraints (prismatic emulation: we move them manually)
-        this.pincerLeftJoint = this.matter.add.constraint(this.head, this.pincerLeft, 0, 1, {
-            pointA: {x: this.headLength/2, y: 0},
-            pointB: {x: -this.pincerLength/2, y: 0}
-        });
-        this.pincerRightJoint = this.matter.add.constraint(this.head, this.pincerRight, 0, 1, {
-            pointA: {x: this.headLength/2, y: 0},
-            pointB: {x: -this.pincerLength/2, y: 0}
-        });
+        // Head: center is offset so that the pivot (joint) is at the correct location
+        // The pivot is at (boom end - headJointOffset), so head center is further ahead by (headLength/2 - headJointLocalOffset)
+        const headJointX = this.baseX + this.boomLength - this.headJointOffset;
+        const headCenterX = headJointX + (this.headLength/2 - this.headJointLocalOffset);
+        this.head = this.matter.add.rectangle(headCenterX, this.baseY, this.headLength, 18, {isStatic: true, label: 'robot-head'});
+        // Pincers (left/right, at a controllable distance in front of head)
+        const pincerBaseX = headCenterX + (this.headLength/2) - this.headJointLocalOffset + this.pincerDistanceFromHead;
+        this.pincerLeft = this.matter.add.rectangle(pincerBaseX, this.baseY - this.pincerMinDist/2, this.pincerLength, this.pincerWidth, {isStatic: true, label: 'robot-pincer-left'});
+        this.pincerRight = this.matter.add.rectangle(pincerBaseX, this.baseY + this.pincerMinDist/2, this.pincerLength, this.pincerWidth, {isStatic: true, label: 'robot-pincer-right'});
         // Store for easy access
         this.bodies = [this.base, this.boom, this.head, this.pincerLeft, this.pincerRight];
+    }
+
+    _createSprites() {
+        // Sprites using loaded images
+        this.robotArmSprite = this.scene.add.sprite(0, 0, 'robotArm').setOrigin(0.5);
+        this.robotBaseSprite = this.scene.add.sprite(0, 0, 'robotBase').setOrigin(0.5);
+        this.robotHeadSprite = this.scene.add.sprite(0, 0, 'robotHead').setOrigin(0.5);
+        this.pincer1Sprite = this.scene.add.sprite(0, 0, 'pincer2').setOrigin(0.5);
+        this.pincer2Sprite = this.scene.add.sprite(0, 0, 'pincer1').setOrigin(0.5);
+
+        this.robotArmSprite.scaleY = 1.8;
+        // Add to this container
+        this.add([
+            this.robotArmSprite,
+            this.robotBaseSprite,
+            this.robotHeadSprite,
+            this.pincer1Sprite,
+            this.pincer2Sprite
+        ]);
+    }
+
+    _updateSprites() {
+        // Helper to sync sprite to body
+        const sync = (sprite, body, offset) => {
+            sprite.x = body.position.x - this.baseX + (offset.x || 0);
+            sprite.y = body.position.y - this.baseY + (offset.y || 0);
+            sprite.rotation = body.angle + (offset.angle || 0);
+        };
+        sync(this.robotBaseSprite, this.base, SPRITE_OFFSETS.base);
+        sync(this.robotArmSprite, this.boom, SPRITE_OFFSETS.boom);
+        sync(this.robotHeadSprite, this.head, SPRITE_OFFSETS.head);
+        sync(this.pincer1Sprite, this.pincerLeft, SPRITE_OFFSETS.pincerLeft);
+        sync(this.pincer2Sprite, this.pincerRight, SPRITE_OFFSETS.pincerRight);
+    }
+
+    // Call _updateSprites after any physics update or movement
+    preUpdate(time, delta) {
+        super.preUpdate && super.preUpdate(time, delta);
+        this._updateSprites();
     }
 
     goTo(targetX, targetY, duration = 700) {
@@ -108,8 +149,6 @@ export default class RobotArm extends GameObjects.Container {
                 this.currentTween = null;
                 // --- Debug: log actual pincer tip vs target ---
                 const headAngle = PhaserMath.Angle.Wrap(this.head.angle);
-                const hx = this.head.position.x + Math.cos(headAngle) * this.headLength / 2;
-                const hy = this.head.position.y + Math.sin(headAngle) * this.headLength / 2;
                 // Pincer tip (pick left pincer tip as reference)
                 const px = this.pincerLeft.position.x + Math.cos(headAngle) * this.pincerLength / 2;
                 const py = this.pincerLeft.position.y + Math.sin(headAngle) * this.pincerLength / 2;
@@ -179,16 +218,21 @@ export default class RobotArm extends GameObjects.Container {
         const headRelDeg = PhaserMath.RadToDeg(headAngleRel);
         const headAbs = PhaserMath.Angle.Wrap(boomAngle + headAngleRel);
         const headAbsDeg = PhaserMath.RadToDeg(headAbs);
-        const bx = this.baseX + Math.cos(boomAngle) * this.boomLength / 2;
-        const by = this.baseY + Math.sin(boomAngle) * this.boomLength / 2;
-        const jointX = this.baseX + Math.cos(boomAngle) * this.boomLength;
-        const jointY = this.baseY + Math.sin(boomAngle) * this.boomLength;
-        const hx = jointX + Math.cos(headAbs) * this.headLength / 2;
-        const hy = jointY + Math.sin(headAbs) * this.headLength / 2;
+        // jointX is where the head joint attaches to boom
+        const jointX = this.baseX + Math.cos(boomAngle) * (this.boomLength - this.headJointOffset);
+        const jointY = this.baseY + Math.sin(boomAngle) * (this.boomLength - this.headJointOffset);
+        // head center is offset from joint by (headLength/2 - headJointLocalOffset)
+        const headCenterOffset = this.headLength/2 - this.headJointLocalOffset;
+        const hx = jointX + Math.cos(headAbs) * headCenterOffset;
+        const hy = jointY + Math.sin(headAbs) * headCenterOffset;
+        // Pincer base is further by pincerDistanceFromHead
+        const pincerBaseOffset = headCenterOffset + this.pincerDistanceFromHead;
+        const pincerBaseX = jointX + Math.cos(headAbs) * pincerBaseOffset;
+        const pincerBaseY = jointY + Math.sin(headAbs) * pincerBaseOffset;
         // console.log(`[ARM DEBUG] boom: ${boomDeg.toFixed(2)} deg, headRel: ${headRelDeg.toFixed(2)} deg, headAbs: ${headAbsDeg.toFixed(2)} deg | head center: (${hx.toFixed(2)}, ${hy.toFixed(2)})`);
 
         // Boom: center is halfway along boom from base
-        this.matter.body.setPosition(this.boom, { x: bx, y: by });
+        this.matter.body.setPosition(this.boom, { x: this.baseX + Math.cos(boomAngle) * this.boomLength / 2, y: this.baseY + Math.sin(boomAngle) * this.boomLength / 2 });
         this.matter.body.setAngle(this.boom, boomAngle); // radians
 
         // Head: center is at the END of the boom, plus half head length in head direction
@@ -205,20 +249,17 @@ export default class RobotArm extends GameObjects.Container {
         // End of head
         const hx = this.head.position.x + Math.cos(angle) * this.headLength / 2;
         const hy = this.head.position.y + Math.sin(angle) * this.headLength / 2;
+        // Pincer base is further by pincerDistanceFromHead
+        const pincerBaseX = hx + Math.cos(angle) * this.pincerDistanceFromHead;
+        const pincerBaseY = hy + Math.sin(angle) * this.pincerDistanceFromHead;
         const dx = Math.cos(angle + Math.PI / 2) * distance / 2;
         const dy = Math.sin(angle + Math.PI / 2) * distance / 2;
-        this.matter.body.setPosition(this.pincerLeft, { x: hx + dx, y: hy + dy });
+        this.matter.body.setPosition(this.pincerLeft, { x: pincerBaseX + dx, y: pincerBaseY + dy });
         this.matter.body.setAngle(this.pincerLeft, angle); // radians
-        this.matter.body.setPosition(this.pincerRight, { x: hx - dx, y: hy - dy });
+        this.matter.body.setPosition(this.pincerRight, { x: pincerBaseX - dx, y: pincerBaseY - dy });
         this.matter.body.setAngle(this.pincerRight, angle); // radians
     }
 
-    _getBoomAngle() {
-        return PhaserMath.Angle.Wrap(this.boom.angle); // radians
-    }
-    _getHeadAngle() {
-        return PhaserMath.Angle.Wrap(this.head.angle - this.boom.angle); // radians (relative)
-    }
     _getPincersDistance() {
         return PhaserMath.Distance.Between(
             this.pincerLeft.position.x, this.pincerLeft.position.y,

@@ -1,5 +1,26 @@
 import { Math as PhaserMath } from "phaser";
 import RobotArm from "./RobotArm.js";
+import {createGroupFromConfig} from "../logic/groupManager.js";
+
+const robotConfig =
+    {
+        "id": "robotGroup",
+        "origin": {
+            "x": 444.9173341040899,
+            "y": 270.5968435355174
+        },
+        "showHandle": true,
+        "objects": [
+            {
+                "type": "paddle",
+                "id": "robotBase",
+                "x": 8.808748740098679,
+                "y": 89.26275251122695,
+                "w": 200,
+                "h": 10
+            }
+        ]
+    }
 
 let phaserContext;
 let robotArm;
@@ -7,27 +28,35 @@ let robotArm;
 export function initRobot(context) {
     phaserContext = context;
 
-    // robotArm = new RobotArm(context, 600, 100);
-    robotArm = new RobotArm(context, 500, 370);
+    //todo robot should be in config
+    robotArm = new RobotArm(context, 450, 440);
     phaserContext.add.existing(robotArm);
+
+    createGroupFromConfig(robotConfig);
+
 
     goTo(390, 552, 0);
 
     phaserContext.time.addEvent({
-        delay: 4000,
+        delay: 10000,
         callback: throwCup,
         loop: true
     });
+
+    // on click, run goTo with the click position
+    // phaserContext.input.on('pointerdown', (pointer) => {
+    //     goTo(pointer.worldX, pointer.worldY, 200);
+    // });
 }
 
 function goTo(x, y, duration){
     robotArm.goTo(x, y, duration);
 
-    const graphics = window.robotArmGraphics || phaserContext.add.graphics();
-    window.robotArmGraphics = graphics;
-    graphics.clear();
-    graphics.fillStyle(0xff0000, 0.9);
-    graphics.fillCircle(x, y, 10);
+    // const graphics = window.robotArmGraphics || phaserContext.add.graphics();
+    // window.robotArmGraphics = graphics;
+    // graphics.clear();
+    // graphics.fillStyle(0xff0000, 0.9);
+    // graphics.fillCircle(x, y, 10);
 
 }
 
@@ -35,19 +64,19 @@ export function throwCup() {
     const armMoveTime = 1000;
     const pincerMoveTime = 300;
     const location1 = {
-        x: PhaserMath.Between(390 - 100, 600),
-        y: PhaserMath.Between(450, 580)
+        x: PhaserMath.Between(300, 500),
+        y: 500
     }
     const location2 = {
-        x: PhaserMath.Between(390 - 100, 600),
-        y: PhaserMath.Between(450, 580)
+        x: location1.x,
+        y: 600
     }
     const location3 = {
         x: PhaserMath.Between(390 - 100, 600),
         y: PhaserMath.Between(450, 580)
     }
 
-    robotArm.setPincersDistance(80, pincerMoveTime);
+    robotArm.setPincersDistance(60, pincerMoveTime);
     goTo(location1.x, location1.y, armMoveTime);
 
     phaserContext.time.addEvent({
@@ -58,14 +87,14 @@ export function throwCup() {
         loop: false
     });
     phaserContext.time.addEvent({
-        delay: 2.6 * armMoveTime,
+        delay: 3 * armMoveTime,
         callback: () => {
-            robotArm.setPincersDistance(30, pincerMoveTime / 2);
+            robotArm.setPincersDistance(20, pincerMoveTime / 2);
         },
         loop: false
     });
     phaserContext.time.addEvent({
-        delay: 3.5 * armMoveTime,
+        delay: 5 * armMoveTime,
         callback: () => {
             goTo(location3.x, location3.y, armMoveTime);
         },
