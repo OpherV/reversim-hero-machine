@@ -11,6 +11,8 @@ import { initComputer } from "./objects/Computer.js";
 import { initFan } from "./objects/Fan.js";
 import {getMachineObjectByBody, initGroupManager} from "./logic/groupManager.js";
 import {drawCord, initCord, updateCord} from "./objects/CoiledCord.js";
+import {initRobot} from "./objects/Robot.js";
+import { initBugjarGroup, loadAssets as loadBugjarAssets} from "./objects/BugjarGroup.js";
 
 // Vite static asset imports (updated for Rollup/public directory structure)
 import shapesJson from './assets/shapes.json';
@@ -46,8 +48,6 @@ import robotHead from './images/robotHead.png';
 import robotArm from './images/robotArm.png';
 import pincer1 from './images/pincer1.png';
 import pincer2 from './images/pincer2.png';
-
-import {initRobot} from "./objects/Robot.js";
 
 let phaserContext;
 let generalContext = {
@@ -126,6 +126,8 @@ const createConfig = (domElement, options = {}) => {
                 this.load.image('robotArm', robotArm);
                 this.load.image('pincer1', pincer1);
                 this.load.image('pincer2', pincer2);
+
+                loadBugjarAssets(this);
             },
 
             create() {
@@ -153,6 +155,8 @@ const createConfig = (domElement, options = {}) => {
                 initCord(phaserContext);
 
                 initRobot(phaserContext);
+
+                initBugjarGroup(phaserContext);
 
                 // Create Phaser graphics for the cord
                 cordGraphics = this.add.graphics();
