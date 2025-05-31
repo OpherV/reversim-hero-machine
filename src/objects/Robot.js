@@ -1,6 +1,6 @@
 import { Math as PhaserMath } from "phaser";
 import RobotArm from "./RobotArm.js";
-import {createGroupFromConfig} from "../logic/groupManager.js";
+import {addObjectBuilder, createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
 
 const robotConfig =
     {
@@ -18,6 +18,12 @@ const robotConfig =
                 "y": 89.26275251122695,
                 "w": 200,
                 "h": 10
+            },
+            {
+                "type": "robotArm",
+                "id": "robotArm",
+                "x": 8,
+                "y": 170,
             }
         ]
     }
@@ -27,14 +33,24 @@ let robotArm;
 
 export function initRobot(context) {
     phaserContext = context;
+    addObjectBuilder('robotArm', (phaserContext, group, itemConfig) => {
+        const robotArm = new RobotArm(
+            phaserContext,
+            itemConfig.x,
+            itemConfig.y,
+            itemConfig.robotArmConfig
+        );
+        phaserContext.add.existing(robotArm);
 
-    //todo robot should be in config
-    robotArm = new RobotArm(context, 450, 425);
-    phaserContext.add.existing(robotArm);
+        return {
+            phaserObject: robotArm
+        }
+    })
 
     createGroupFromConfig(robotConfig);
 
 
+    robotArm = getMachineObjectById('robotArm').phaserObject;
     goTo(390, 552, 0);
 
     phaserContext.time.addEvent({
