@@ -11,7 +11,7 @@ let phaserContext = null;
 
 export function initConveyorBelt(context) {
     phaserContext = context;
-    addObjectBuilder('conveyor', (group, itemConfig) => {
+    addObjectBuilder('conveyor', (phaserContext,group, itemConfig) => {
         return createConveyorBelt(
             itemConfig.x,
             itemConfig.y,

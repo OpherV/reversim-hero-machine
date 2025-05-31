@@ -1,4 +1,5 @@
-import {addStatic} from "./utils.js";
+import { addStatic } from "./utils.js";
+import { builder as dashedLineGraphicBuilder } from "../objects/DashedLineGraphic.js";
 
 let generalContext;
 let phaserContext;
@@ -15,9 +16,10 @@ export function initGroupManager(context, shapesData) {
 
     addObjectBuilder('sprite', spriteBuilder)
     addObjectBuilder('static', staticBuilder)
+    addObjectBuilder('dashedLineGraphic', dashedLineGraphicBuilder)
 }
 
-function staticBuilder(group, itemConfig) {
+function staticBuilder(phaserContext, group, itemConfig) {
     const options = {
         group: itemConfig.group,
         sprite: itemConfig.sprite,
@@ -36,7 +38,7 @@ function staticBuilder(group, itemConfig) {
     );
 }
 
-function spriteBuilder(group, itemConfig) {
+function spriteBuilder(phaserContext, group, itemConfig) {
     let shape;
     let phaserObject;
     let body;
@@ -78,7 +80,7 @@ export function createMachineObjFromConfig(group, itemConfig) {
     if (objectBuilders[itemConfig.type]) {
         return {
             ...itemConfig,
-            ...objectBuilders[itemConfig.type](group, itemConfig)
+            ...objectBuilders[itemConfig.type](phaserContext, group, itemConfig)
         };
     } else {
         console.warn(`No object builder found for type ${itemConfig.type}`);

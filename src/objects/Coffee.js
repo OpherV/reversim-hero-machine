@@ -43,7 +43,27 @@ const coffeeConfig =
                 "y": 233.36520854331684,
                 "w": 450,
                 "h": 10
-            }
+            },
+            {
+                "type": "dashedLineGraphic",
+                "id": "coffeeMachine_dashedLineGraphic1",
+                "x": 10,
+                "y": 228,
+                "dashedLineConfig": {
+                    lineLength: 200,
+                    circleColor: 0xf5854b
+                }
+            },
+            {
+                "type": "dashedLineGraphic",
+                "id": "coffeeMachine_dashedLineGraphic2",
+                "x": 100,
+                "y": 228,
+                "dashedLineConfig": {
+                    lineLength: 300,
+                    circleColor: 0xf26c7f
+                }
+            },
         ]
     }
 

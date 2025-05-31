@@ -147,7 +147,7 @@ function createBook(x, y, width, height, type, title) {
 export function initBookStack(context) {
     phaserContext = context;
 
-    addObjectBuilder('book', (group, itemConfig) => {
+    addObjectBuilder('book', (phaserContext, group, itemConfig) => {
 
         const book = createBook(
             itemConfig.x,

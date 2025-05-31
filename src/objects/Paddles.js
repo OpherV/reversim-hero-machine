@@ -61,7 +61,7 @@ export function createPaddle(x, y, width, height, angle = 0) {
 
 export function initPaddles(context) {
     phaserContext = context;
-    addObjectBuilder('paddle', (group, itemConfig) => {
+    addObjectBuilder('paddle', (phaserContext, group, itemConfig) => {
         return createPaddle(
             itemConfig.x,
             itemConfig.y,
