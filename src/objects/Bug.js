@@ -1,5 +1,6 @@
 import { Math as PhaserMath } from 'phaser';
 import Container from 'phaser/src/gameobjects/container/Container.js';
+import shapes from '../assets/shapes.json';
 
 export default class Bug extends Container {
     /**
@@ -31,17 +32,12 @@ export default class Bug extends Container {
 
         this.direction = 1; // 1: right, -1: left
         this.moving = true;
-        this.grounded = false;
         this.lastJiggleTime = 0; // Track when the last jiggle occurred
 
         // Create Matter.js body and sprite
         this.bodySprite = scene.matter.add.sprite(x, y, 'bug', null, {
             label: 'bug',
-            shape: {
-                type: 'rectangle',
-                width: this.width,
-                height: this.height
-            },
+            shape: shapes.bug,
             friction: 0.1,
             frictionAir: 0.01, // Lowered for faster falling
             restitution: 0.1,
@@ -55,22 +51,15 @@ export default class Bug extends Container {
         // For flipping
         this.bodySprite.setFlipX(false);
 
-        // Add to update list
-        scene.events.on('update', this.update, this);
-
-        // Listen for collisions to detect if the bug is on the ground
-        this.bodySprite.setOnCollideActive((pair) => {
-            // Only consider as grounded if colliding below
-            if (pair && pair.collision && pair.collision.normal) {
-                // normal is from bodyB to bodyA, so if Y is negative, A is on top of B
-                if (pair.collision.normal.y < -0.5) {
-                    this.grounded = true;
-                }
+        // Ensure parent Bug is destroyed if bodySprite is destroyed directly
+        this.bodySprite.on('destroy', () => {
+            if (!this._destroyed) {
+                this.destroy();
             }
         });
-        this.bodySprite.setOnCollideEnd(() => {
-            this.grounded = false;
-        });
+
+        // Add to update list
+        scene.events.on('update', this.update, this);
     }
 
     isUpsideDown() {
@@ -150,9 +139,15 @@ export default class Bug extends Container {
         if (this.scene) {
             this.scene.events.off('update', this.update, this);
         }
-        if (this.bodySprite) {
-            this.bodySprite.destroy();
+        // Remove this bug from the scene's children list
+        if (this.scene && this.scene.children && this.scene.children.list) {
+            const idx = this.scene.children.list.indexOf(this);
+            if (idx !== -1) {
+                this.scene.children.list.splice(idx, 1);
+            }
         }
+        this.active = false;
+        this._destroyed = true;
         super.destroy(fromScene);
     }
 }
