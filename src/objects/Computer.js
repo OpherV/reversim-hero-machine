@@ -63,9 +63,11 @@ let smokeConfig = {
     distance: 150,  // Controls how far particles travel
     speedX: 0.5,    // Controls the horizontal speed of smoke particles
     speedY: 1,    // Controls the vertical speed of smoke particles
-    rotation: 2,     // Controls how much the particles rotate
-    emissionFrameInterval: 60,
+    rotation: 2     // Controls how much the particles rotate
 };
+
+let smokeFrameCount = 0;
+let emissionFrameInterval = 60;
 
 export function initComputer(context) {
     generalContext = context
@@ -88,10 +90,10 @@ export function initComputer(context) {
         const smokePercent = PhaserMath.Clamp((faultLevel - 0.2)  / 0.5, 0, 1);
 
         if (smokePercent > 0 && smokePercent < 1) {
-            console.log(`Starting smoke with amount: ${smokePercent}`);
+            emissionFrameInterval = 60 - Math.round(smokePercent * 50);
             startSmoke({
                 amount: smokePercent * 10,
-                thickness: smokePercent * 3
+                thickness: smokePercent * 3,
             });
         }
 
@@ -154,7 +156,7 @@ export function startSmoke(options = {}) {
     if (options.rotation !== undefined) smokeConfig.rotation = options.rotation;
 
     const emitter1Config = {
-        speed: {min: 20 * smokeConfig.speedY, max: 40 * smokeConfig.speedY * smokeConfig.amount},
+        speed: {min: 20 * smokeConfig.speedY, max: 60 * smokeConfig.speedY},
         scale: {start: 0.1 * smokeConfig.thickness, end: 0.5 * smokeConfig.thickness},
         alpha: {start: 0.5, end: 0},
         angle: {min: 260, max: 280},
@@ -171,7 +173,7 @@ export function startSmoke(options = {}) {
     };
 
     const emitter2Config = {
-        speed: {min: 15 * smokeConfig.speedY, max: 36 * smokeConfig.speedY * smokeConfig.amount},
+        speed: {min: 15 * smokeConfig.speedY, max: 44 * smokeConfig.speedY },
         scale: {start: 0.12 * smokeConfig.thickness, end: 0.55 * smokeConfig.thickness},
         alpha: {start: 0.4, end: 0},
         angle: {min: 265, max: 275},
@@ -187,7 +189,7 @@ export function startSmoke(options = {}) {
     }
 
     const emitter3Config = {
-        speed: {min: 18 * smokeConfig.speedY, max: 34 * smokeConfig.speedY * smokeConfig.amount},
+        speed: {min: 18 * smokeConfig.speedY, max: 43 * smokeConfig.speedY },
         scale: {start: 0.08 * smokeConfig.thickness, end: 0.48 * smokeConfig.thickness},
         alpha: {start: 0.45, end: 0},
         angle: {min: 262, max: 278},
@@ -210,6 +212,8 @@ export function startSmoke(options = {}) {
         smokeEmitter1 = phaserContext.add.particles(0, 0, 'smoke1', emitter1Config);
         smokeEmitter2 = phaserContext.add.particles(0, 0, 'smoke2', emitter2Config);
         smokeEmitter3 = phaserContext.add.particles(0, 0, 'smoke3', emitter3Config);
+        // Reset frame count
+        smokeFrameCount = 0;
         // Add an update event to emit particles at the current computer position
         phaserContext.events.on('update', emitSmokeAtComputer);
     } else {
@@ -221,16 +225,15 @@ export function startSmoke(options = {}) {
     return [smokeEmitter1, smokeEmitter2, smokeEmitter3];
 }
 
-let smokeFrameCount = 0;
-
 function emitSmokeAtComputer() {
-    smokeFrameCount++;
-    if (smokeFrameCount % smokeConfig.emissionFrameInterval !== 0) return;
     if (!computerSprite || !smokeEmitter1 || !smokeEmitter2 || !smokeEmitter3) return;
     const emitOffsetY = -(computerSprite.displayHeight / 2);
-    smokeEmitter1.emitParticleAt(computerSprite.x, computerSprite.y + emitOffsetY, 1);
-    smokeEmitter2.emitParticleAt(computerSprite.x + 5, computerSprite.y + emitOffsetY - 2, 1);
-    smokeEmitter3.emitParticleAt(computerSprite.x - 5, computerSprite.y + emitOffsetY - 1, 1);
+    smokeFrameCount++;
+    if (smokeFrameCount % emissionFrameInterval === 0) {
+        smokeEmitter1.emitParticleAt(computerSprite.x, computerSprite.y + emitOffsetY, 1);
+        smokeEmitter2.emitParticleAt(computerSprite.x + 5, computerSprite.y + emitOffsetY - 2, 1);
+        smokeEmitter3.emitParticleAt(computerSprite.x - 5, computerSprite.y + emitOffsetY - 1, 1);
+    }
 }
 
 /**
@@ -243,6 +246,8 @@ export function stopSmoke() {
     if (smokeEmitter1) smokeEmitter1.stop();
     if (smokeEmitter2) smokeEmitter2.stop();
     if (smokeEmitter3) smokeEmitter3.stop();
+    // Reset frame count when stopped
+    smokeFrameCount = 0;
 }
 
 /**
