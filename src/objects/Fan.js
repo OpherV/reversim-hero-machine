@@ -63,10 +63,12 @@ let fanBounds = { x: 100, y: 238, r: 50 };
 
 let debugGraphics;
 let showFanDebug = false;
+let onMaxRotationCallback = null;
 
-function initFan(context) {
+function initFan(context, onMaxRotation) {
     generalContext = context;
     phaserContext = context.phaserContext;
+    onMaxRotationCallback = onMaxRotation;
 
     createGroupFromConfig(fanConfig)
     blades = getMachineObjectById('fanBlades').phaserObject;
@@ -84,7 +86,6 @@ function initFan(context) {
             }
             const isBoosting = checkSmokeCollisionAndBoost();
 
-
             if (!isBoosting) {
                 rotationSpeed *= rotationDecay;
                 if (rotationSpeed < 0.002) {
@@ -92,8 +93,12 @@ function initFan(context) {
                     currentRotationBoost = 0;
                 }
             }
-
-            if (rotationSpeed > maxRotationSpeed) rotationSpeed = maxRotationSpeed;
+            if (rotationSpeed > maxRotationSpeed) {
+                rotationSpeed = maxRotationSpeed;
+                if (typeof onMaxRotationCallback === 'function') {
+                    onMaxRotationCallback();
+                }
+            }
             fanAngle += rotationSpeed;
             if (blades) blades.rotation = fanAngle;
 
@@ -145,7 +150,6 @@ function checkSmokeCollisionAndBoost() {
                 currentRotationBoost = Math.min(currentRotationBoost * rotationBoostFactor, maxRotationBoost);
             }
             rotationSpeed += currentRotationBoost;
-            if (rotationSpeed > maxRotationSpeed) rotationSpeed = maxRotationSpeed;
         }
     }
     return isBoosting;

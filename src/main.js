@@ -134,7 +134,6 @@ const createConfig = (domElement, options = {}) => {
                 phaserContext = generalContext.phaserContext =  this;
                 initRender(phaserContext, domElement ,options);
 
-
                 phaserContext.matter.add.mouseSpring();
 
                 shapes = this.cache.json.get('shapes');
@@ -149,7 +148,7 @@ const createConfig = (domElement, options = {}) => {
                 initCoffee(phaserContext, shapes)
                 initBookStack(phaserContext);
                 initComputer(generalContext);
-                initFan(generalContext);
+                initFan(generalContext, options.onAirMachineStart);
 
                 // Initialize the coiled cord after computer
                 initCord(phaserContext);
@@ -200,6 +199,12 @@ const createConfig = (domElement, options = {}) => {
 };
 
 const ReversimMachine = {
+    /**
+     * Initialize the Reversim Machine
+     * @param {HTMLElement|string} domRef - DOM element or selector
+     * @param {Object} options - Options for the machine
+     * @param {Function} [options.onAirMachineStart] - Called when fan reaches max rotation
+     */
     init(domRef, options = {}) {
         if (game) {
             game.destroy(true);
