@@ -85,8 +85,17 @@ export function initComputer(context) {
        faultLevel = PhaserMath.Clamp(faultLevel, 0, 0.7);
        computerScreen.showNoise();
        computerScreen.setFaultAmount(faultLevel);
+        const maxSmokeAmount = 4;
+        const smokeAmount = PhaserMath.Clamp((faultLevel - 0.2)  / 0.5, 0, 1) * maxSmokeAmount;
 
-   //     const emitters = startSmoke();
+        if (smokeAmount > 0 && smokeAmount < maxSmokeAmount) {
+            console.log(`Starting smoke with amount: ${smokeAmount}`);
+            startSmoke({
+                amount: smokeAmount,
+                thickness: smokeAmount
+            });
+        }
+
    }, 500);
 
    // quick hack to prevent this from firing at start

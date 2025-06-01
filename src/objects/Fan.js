@@ -1,6 +1,3 @@
-// Fan-related functionality (boilerplate based on Computer.js)
-import { addStatic } from '../logic/utils.js';
-import { createPaddle } from './Paddles.js';
 import { getSmokeParticles } from './Computer.js';
 import {createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
 
