@@ -180,8 +180,8 @@ const createConfig = (domElement, options = {}) => {
                     // todo fix top/left bounds
                     // Remove bodies that are out of bounds by at least removalDist
                     if (
-                        x < -removalDist || x > frame.width + removalDist ||
-                        y < -removalDist || y > frame.height + removalDist
+                        x < -frame.width -removalDist || x > frame.width + removalDist ||
+                        y < -frame.height -removalDist || y > frame.height + removalDist
                     ) {
                         const machineObject = getMachineObjectByBody(body);
                         if (machineObject) {
