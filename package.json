@@ -1,6 +1,6 @@
 {
   "name": "reversim-machine",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A physics-based interactive machine for Reversim 2025 Conference",
   "type": "module",
   "main": "dist/reversim-machine.cjs.js",
