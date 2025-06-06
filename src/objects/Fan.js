@@ -74,6 +74,8 @@ function initFan(context, onMaxRotationCallback) {
 
     createGroupFromConfig(fanConfig)
     blades = getMachineObjectById('fanBlades').phaserObject;
+    const windMachine = getMachineObjectById('windMachine');
+    const fanPaddle = getMachineObjectById('fanPaddle');
 
     if (phaserContext && phaserContext.events) {
         if (!debugGraphics) {
@@ -81,6 +83,8 @@ function initFan(context, onMaxRotationCallback) {
             debugGraphics.setDepth(1000);
         }
         phaserContext.events.on('update', () => {
+            const windMachineOnPaddle = phaserContext.matter.collision.collides(windMachine.body, fanPaddle.body) !== null;
+
             // Update fanBounds to current blade position
             if (blades && blades.x !== undefined && blades.y !== undefined) {
                 fanBounds.x = blades.x;
@@ -95,7 +99,7 @@ function initFan(context, onMaxRotationCallback) {
                     currentRotationBoost = 0;
                 }
             }
-            if (!airMachineStarted) {
+            if (!airMachineStarted && windMachineOnPaddle) {
                 const percent = PhaserMath.Clamp(rotationSpeed / maxRotationSpeed, 0, 1);
                 gaugesGraphic.setParams({
                     fgColor: 0xffffff,
@@ -107,7 +111,7 @@ function initFan(context, onMaxRotationCallback) {
             }
             if (rotationSpeed > maxRotationSpeed) {
                 rotationSpeed = maxRotationSpeed;
-                if (!airMachineStarted) {
+                if (!airMachineStarted && windMachineOnPaddle) {
                     onMaxRotation(onMaxRotationCallback)
                     airMachineStarted = true;
                 }
@@ -137,22 +141,29 @@ function initFan(context, onMaxRotationCallback) {
             }
         });
     }
-    const windMachine = getMachineObjectById('windMachine').phaserObject;
+
     gaugesGraphic = new GaugesGraphic(phaserContext, 18, -17, {
-        parent: windMachine
+        parent: windMachine.phaserObject
     });
     phaserContext.add.existing(gaugesGraphic);
-    gaugesGraphic.setDepth(windMachine.depth + 1);
+    gaugesGraphic.setDepth(windMachine.phaserObject.depth + 1);
     gaugesGraphic.drawGauges();
+
+    windMachine.phaserObject.once('destroy', () => {
+        gaugesGraphic.destroy();
+    });
 }
 
 function onMaxRotation(onMaxRotationCallback) {
-    const windMachine = getMachineObjectById('windMachine').phaserObject;
+    const windMachine = getMachineObjectById('windMachine');
 
     const airGraphic = new AirGraphic(phaserContext, 90, -10,
-        {parent: windMachine});
+        {parent: windMachine.phaserObject});
     phaserContext.add.existing(airGraphic);
     airGraphic.startAnimation();
+    windMachine.phaserObject.once('destroy', () => {
+        airGraphic.destroy();
+    });
 
     gaugesGraphic.setParams({
         fgColor: 0xf47d8a
