@@ -55,7 +55,10 @@ function spriteBuilder(phaserContext, group, itemConfig) {
             itemConfig.y,
             itemConfig.sprite,
             null,
-            itemConfig.matterBodyConfig
+            {
+                ...itemConfig.matterBodyConfig,
+                shape
+            }
         )
         body = phaserObject.body;
         body.label = itemConfig.id;

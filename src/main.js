@@ -7,7 +7,7 @@ import { initCoffee } from "./objects/Coffee.js";
 import { initPaddles} from "./objects/Paddles.js";
 import { initBookStack} from "./objects/BookStack.js";
 import { initUtils } from "./logic/utils.js";
-import { initComputer } from "./objects/Computer.js";
+import { initComputer, loadAssets as loadComputerAssets } from "./objects/Computer.js";
 import { initFan } from "./objects/Fan.js";
 import {getMachineObjectByBody, initGroupManager} from "./logic/groupManager.js";
 import {drawCord, initCord, updateCord} from "./objects/CoiledCord.js";
@@ -21,9 +21,6 @@ import ballImg from './images/ball.png';
 import coffeeCupImg from './images/Cup.png';
 import coffeeMachineImg from './images/coffeeMachine.png';
 import coffeeMachineCoverImg from './images/coffeeMachineCover.png';
-
-import computerImg from './images/Computer.png';
-import keyboardImg from './images/Keyboard.png';
 
 import coffeeParticleImg from './images/coffeeParticle.png';
 import fanBaseImg from './images/fanBase.png';
@@ -98,9 +95,6 @@ const createConfig = (domElement, options = {}) => {
                 this.load.image('coffeeMachine', coffeeMachineImg);
                 this.load.image('coffeeMachineCover', coffeeMachineCoverImg);
 
-                this.load.image('computer', computerImg);
-                this.load.image('keyboard', keyboardImg);
-
                 this.load.image('coffeeParticle', coffeeParticleImg);
                 this.load.image('fanBase', fanBaseImg);
                 this.load.image('fanBlades', fanBladesImg);
@@ -125,6 +119,7 @@ const createConfig = (domElement, options = {}) => {
                 this.load.image('pincer1', pincer1);
                 this.load.image('pincer2', pincer2);
 
+                loadComputerAssets(this);
                 loadBugjarAssets(this);
             },
 

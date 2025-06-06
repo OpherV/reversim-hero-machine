@@ -4,6 +4,10 @@ import ComputerScreen from "./ComputerScreen.js";
 import {addCollisionHandler} from "../logic/collisionManager.js";
 import {debounce} from "../logic/utils.js";
 
+import computerImg from '../images/Computer.png';
+import keyboardImg from '../images/Keyboard.png';
+import rubberDuckImg from '../images/rubberDuck.png';
+
 const computerConfig = {
     "id": "computerGroup",
     "showHandle": true,
@@ -44,6 +48,15 @@ const computerConfig = {
             "y": 123,
             "displayWidth": 83,
             "displayHeight": 31
+        },
+        {
+            "type": "sprite",
+            "sprite": "rubberDuck",
+            "shapeName": "rubberduck",
+            "id": "rubberDuck",
+            "x": 180,
+            "y": -30,
+            "scale": 2
         }
     ]
 }
@@ -68,6 +81,12 @@ let smokeConfig = {
 
 let smokeFrameCount = 0;
 let emissionFrameInterval = 60;
+
+export function loadAssets(phaserContext) {
+    phaserContext.load.image('computer', computerImg);
+    phaserContext.load.image('keyboard', keyboardImg);
+    phaserContext.load.image('rubberDuck', rubberDuckImg);
+}
 
 export function initComputer(context) {
     generalContext = context
