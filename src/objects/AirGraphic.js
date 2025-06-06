@@ -18,6 +18,7 @@ export default class AirGraphic extends GameObjects.Container {
    *   - chaos: randomness factor (0-1)
    *   - color: color of the air lines
    *   - lineGap: distance between lines
+   *   - parent: gameObject to follow (optional)
    */
   constructor(scene, x, y, options = {}) {
     super(scene, x, y);
@@ -30,6 +31,9 @@ export default class AirGraphic extends GameObjects.Container {
     this.lineWidth = options.lineWidth || 3;
     this.segmentCount = options.segmentCount || 100;
     this.lineGap = options.lineGap !== undefined ? options.lineGap : this.amplitude * 3;
+    this._offsetX = x;
+    this._offsetY = y;
+    this.parent = options.parent || null;
     this.time = 0;
 
     this.graphics = scene.add.graphics();
@@ -49,6 +53,19 @@ export default class AirGraphic extends GameObjects.Container {
   }
 
   update(time, delta) {
+    if (this.parent) {
+      const parentObj = this.parent;
+      const angle = parentObj.rotation || 0;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      const ox = this._offsetX;
+      const oy = this._offsetY;
+      const rx = ox * cos - oy * sin;
+      const ry = ox * sin + oy * cos;
+      this.x = parentObj.x + rx;
+      this.y = parentObj.y + ry;
+      this.rotation = angle;
+    }
     this.time += (delta || 16) * 0.001 * this.speed;
     this.drawWaves();
   }
@@ -83,6 +100,9 @@ export default class AirGraphic extends GameObjects.Container {
    */
   setParams(params = {}) {
     Object.assign(this, params);
+    if (params.parent !== undefined) {
+      this.parent = params.parent;
+    }
   }
 
   /**
