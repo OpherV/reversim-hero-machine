@@ -24,7 +24,6 @@ import coffeeMachineCoverImg from './images/coffeeMachineCover.png';
 
 import computerImg from './images/Computer.png';
 import keyboardImg from './images/Keyboard.png';
-import paddleImg from './images/paddle.png';
 
 import coffeeParticleImg from './images/coffeeParticle.png';
 import fanBaseImg from './images/fanBase.png';
@@ -101,7 +100,6 @@ const createConfig = (domElement, options = {}) => {
 
                 this.load.image('computer', computerImg);
                 this.load.image('keyboard', keyboardImg);
-                this.load.image('paddle', paddleImg);
 
                 this.load.image('coffeeParticle', coffeeParticleImg);
                 this.load.image('fanBase', fanBaseImg);
