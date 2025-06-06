@@ -135,7 +135,7 @@ function setupComputerScreen(){
     computerScreen.setScale(0.6)
     phaserContext.add.existing(computerScreen);
 
-    const screenOffset = { x: -51, y: -55 };
+    const screenOffset = { x: -55, y: -57 };
     function onUpdate() {
         // computerSprite was destroyed
         if (!computerSprite.scene) {

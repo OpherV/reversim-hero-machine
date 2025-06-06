@@ -142,7 +142,7 @@ function initFan(context, onMaxRotationCallback) {
         });
     }
 
-    gaugesGraphic = new GaugesGraphic(phaserContext, 18, -17, {
+    gaugesGraphic = new GaugesGraphic(phaserContext, 21, -25, {
         parent: windMachine.phaserObject
     });
     phaserContext.add.existing(gaugesGraphic);
@@ -157,7 +157,7 @@ function initFan(context, onMaxRotationCallback) {
 function onMaxRotation(onMaxRotationCallback) {
     const windMachine = getMachineObjectById('windMachine');
 
-    const airGraphic = new AirGraphic(phaserContext, 90, -10,
+    const airGraphic = new AirGraphic(phaserContext, 100, -20,
         {parent: windMachine.phaserObject});
     phaserContext.add.existing(airGraphic);
     airGraphic.startAnimation();
