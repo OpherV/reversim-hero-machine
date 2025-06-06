@@ -1,5 +1,6 @@
 import { getSmokeParticles } from './Computer.js';
 import {createGroupFromConfig, getMachineObjectById} from "../logic/groupManager.js";
+import AirGraphic from "./AirGraphic.js";
 
 const fanConfig = {
     "id": "fanGroup",
@@ -46,12 +47,11 @@ const fanConfig = {
 
 let generalContext;
 let phaserContext;
-
-let fanSprite;
 let blades;
 let fanAngle = 0;
 let rotationSpeed = 0;
 let currentRotationBoost = 0;
+let airMachineStarted = false;
 
 const initialRotationBoost = 0.0001;
 const maxRotationSpeed = 0.1;
@@ -63,12 +63,10 @@ let fanBounds = { x: 100, y: 238, r: 50 };
 
 let debugGraphics;
 let showFanDebug = false;
-let onMaxRotationCallback = null;
 
-function initFan(context, onMaxRotation) {
+function initFan(context, onMaxRotationCallback) {
     generalContext = context;
     phaserContext = context.phaserContext;
-    onMaxRotationCallback = onMaxRotation;
 
     createGroupFromConfig(fanConfig)
     blades = getMachineObjectById('fanBlades').phaserObject;
@@ -95,8 +93,9 @@ function initFan(context, onMaxRotation) {
             }
             if (rotationSpeed > maxRotationSpeed) {
                 rotationSpeed = maxRotationSpeed;
-                if (typeof onMaxRotationCallback === 'function') {
-                    onMaxRotationCallback();
+                if (!airMachineStarted) {
+                    onMaxRotation(onMaxRotationCallback)
+                    airMachineStarted = true;
                 }
             }
             fanAngle += rotationSpeed;
@@ -123,6 +122,18 @@ function initFan(context, onMaxRotation) {
                 debugGraphics.clear();
             }
         });
+    }
+}
+
+function onMaxRotation(onMaxRotationCallback) {
+    const airGraphic = new AirGraphic(phaserContext,
+        fanConfig.origin.x + 210,
+        fanConfig.origin.y + 45);
+    phaserContext.add.existing(airGraphic);
+    airGraphic.startAnimation();
+
+    if (typeof onMaxRotationCallback === 'function') {
+        onMaxRotationCallback();
     }
 }
 
