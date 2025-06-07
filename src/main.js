@@ -1,6 +1,6 @@
 import { Game, Scale, AUTO } from "phaser";
 import { getFrameWidth, initRender } from "./logic/render.js";
-import {destroyCollisionManager, initCollisionManager} from "./logic/collisionManager.js";
+import { destroyCollisionManager, initCollisionManager} from "./logic/collisionManager.js";
 import { initDragManager } from "./logic/dragManager.js";
 import { initConveyorBelt } from "./objects/ConveyorBelt.js";
 import { initCoffee } from "./objects/Coffee.js";
@@ -9,14 +9,14 @@ import { initBookStack} from "./objects/BookStack.js";
 import { initUtils } from "./logic/utils.js";
 import { initComputer, loadAssets as loadComputerAssets } from "./objects/Computer.js";
 import { initFan } from "./objects/Fan.js";
-import {destroyGroupManager, getMachineObjectByBody, initGroupManager} from "./logic/groupManager.js";
-import {drawCord, initCord, updateCord} from "./objects/CoiledCord.js";
-import {initRobot} from "./objects/Robot.js";
+import { destroyGroupManager, getMachineObjectByBody, initGroupManager} from "./logic/groupManager.js";
+import { drawCord, initCord, updateCord} from "./objects/CoiledCord.js";
+import { initRobot} from "./objects/Robot.js";
 import { initBugjarGroup, loadAssets as loadBugjarAssets} from "./objects/BugjarGroup.js";
+import { initBallGroup, destroyBallGroup, loadAssets as loadBallAssets } from "./objects/BallGroup.js";
 
 // Vite static asset imports (updated for Rollup/public directory structure)
 import shapesJson from './assets/shapes.json';
-import ballImg from './images/ball.png';
 
 import coffeeCupImg from './images/Cup.png';
 import coffeeMachineImg from './images/coffeeMachine.png';
@@ -55,16 +55,6 @@ let game = null;
 
 const objectRemovalDistance = 200;
 
-function createBall() {
-    const ball = phaserContext.matter.add.sprite(100, 50, 'ball', null, {
-        label: 'ball',
-        restitution: 0.9,
-        friction: 0.002,
-        circleRadius: 15,
-    });
-    ball.scale = 2/3;
-}
-
 const createConfig = (domElement, options = {}) => {
     const canvasBB = domElement.getBoundingClientRect();
 
@@ -89,7 +79,6 @@ const createConfig = (domElement, options = {}) => {
         scene: {
             preload() {
                 this.load.json('shapes', shapesJson);
-                this.load.image('ball', ballImg);
 
                 this.load.image('coffeeCup', coffeeCupImg);
                 this.load.image('coffeeMachine', coffeeMachineImg);
@@ -119,6 +108,7 @@ const createConfig = (domElement, options = {}) => {
                 this.load.image('pincer1', pincer1);
                 this.load.image('pincer2', pincer2);
 
+                loadBallAssets(this);
                 loadComputerAssets(this);
                 loadBugjarAssets(this);
             },
@@ -143,21 +133,13 @@ const createConfig = (domElement, options = {}) => {
                 initComputer(generalContext);
                 initFan(generalContext, options.onAirMachineStart);
 
-                // Initialize the coiled cord after computer
                 initCord(phaserContext);
-
-                initRobot(phaserContext);
-
-                initBugjarGroup(phaserContext);
-
-                // Create Phaser graphics for the cord
+                // todo fix this in the initCord
                 cordGraphics = this.add.graphics();
 
-                this.time.addEvent({
-                    delay: 2500,
-                    callback: createBall,
-                    loop: true
-                });
+                initRobot(phaserContext);
+                initBugjarGroup(phaserContext);
+                initBallGroup(phaserContext);
             },
 
             update(time, delta) {

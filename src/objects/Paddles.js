@@ -1,33 +1,5 @@
-import { Math as PhaserMath } from "phaser"
 import { attachToPhysics } from '../logic/utils.js';
 import { addObjectBuilder, createGroupFromConfig } from "../logic/groupManager.js";
-
-const paddleGroupConfig = {
-    id: "paddles",
-    origin: {x: 50, y: 50},
-    showHandle: false,
-    objects: [
-        {
-            id: "paddle1",
-            type: "paddle",
-            x: 50,
-            y: 150,
-            w: 150,
-            h: 10,
-            angle: PhaserMath.DegToRad(30),
-        },
-        {
-            id: "paddle2",
-            type: "paddle",
-            x: 250,
-            y: 250,
-            w: 150,
-            h: 10,
-            angle: PhaserMath.DegToRad(-30),
-        },
-    ]
-}
-
 let phaserContext;
 
 export function createPaddle(x, y, width, height, angle = 0) {
@@ -74,6 +46,4 @@ export function initPaddles(context) {
             itemConfig.angle,
         );
     });
-
-    createGroupFromConfig(paddleGroupConfig)
 }
