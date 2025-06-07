@@ -1,6 +1,6 @@
 import { Game, Scale, AUTO } from "phaser";
 import { getFrameWidth, initRender } from "./logic/render.js";
-import { initCollisionManager } from "./logic/collisionManager.js";
+import {destroyCollisionManager, initCollisionManager} from "./logic/collisionManager.js";
 import { initDragManager } from "./logic/dragManager.js";
 import { initConveyorBelt } from "./objects/ConveyorBelt.js";
 import { initCoffee } from "./objects/Coffee.js";
@@ -9,7 +9,7 @@ import { initBookStack} from "./objects/BookStack.js";
 import { initUtils } from "./logic/utils.js";
 import { initComputer, loadAssets as loadComputerAssets } from "./objects/Computer.js";
 import { initFan } from "./objects/Fan.js";
-import {getMachineObjectByBody, initGroupManager} from "./logic/groupManager.js";
+import {destroyGroupManager, getMachineObjectByBody, initGroupManager} from "./logic/groupManager.js";
 import {drawCord, initCord, updateCord} from "./objects/CoiledCord.js";
 import {initRobot} from "./objects/Robot.js";
 import { initBugjarGroup, loadAssets as loadBugjarAssets} from "./objects/BugjarGroup.js";
@@ -221,6 +221,9 @@ const ReversimMachine = {
         if (game) {
             game.destroy(true);
             game = null;
+
+            destroyGroupManager();
+            destroyCollisionManager();
         }
     }
 };

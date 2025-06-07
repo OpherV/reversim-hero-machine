@@ -2,11 +2,16 @@ let phaserContext;
 const collisionHandlers = {};
 const handlersMarkedForRemoval = new Set();
 
+// Store references to event handlers for cleanup
+let collisionEventHandlers = {};
+let afterUpdateHandler = null;
+
 export function initCollisionManager(context) {
     phaserContext = context;
 
+    collisionEventHandlers = {};
     ['collisionstart', 'collisionend', 'collisionactive'].forEach(eventName => {
-        phaserContext.matter.world.on(eventName, (event) => {
+        const handler = (event) => {
             event.pairs.forEach(({ bodyA, bodyB }) => {
                 Object.values(collisionHandlers).forEach(handlerConfig => {
                     const validatedPair = getValidatedPair(handlerConfig, bodyA, bodyB);
@@ -15,16 +20,36 @@ export function initCollisionManager(context) {
                     }
                 });
             })
-        })
+        };
+        collisionEventHandlers[eventName] = handler;
+        phaserContext.matter.world.on(eventName, handler);
     });
 
-
-    // todo there might be a bug in this logic since a collision might still be active
-    phaserContext.matter.world.on('afterUpdate',  () => {
+    afterUpdateHandler = () => {
         handlersMarkedForRemoval.forEach(handlerId => delete collisionHandlers[handlerId]);
         handlersMarkedForRemoval.clear();
-    })
+    };
+    phaserContext.matter.world.on('afterUpdate', afterUpdateHandler);
+}
 
+export function destroyCollisionManager() {
+    if (phaserContext && phaserContext.matter && phaserContext.matter.world) {
+        // Remove collision event handlers
+        if (collisionEventHandlers) {
+            Object.entries(collisionEventHandlers).forEach(([eventName, handler]) => {
+                phaserContext.matter.world.off(eventName, handler);
+            });
+        }
+        // Remove afterUpdate handler
+        if (afterUpdateHandler) {
+            phaserContext.matter.world.off('afterUpdate', afterUpdateHandler);
+        }
+    }
+    phaserContext = null;
+    Object.keys(collisionHandlers).forEach(key => delete collisionHandlers[key]);
+    handlersMarkedForRemoval.clear();
+    collisionEventHandlers = {};
+    afterUpdateHandler = null;
 }
 
 export function addCollisionHandler(collisionHandlerConfig) {

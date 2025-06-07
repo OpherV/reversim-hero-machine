@@ -80,7 +80,9 @@ export default class ComputerScreen extends GameObjects.Container {
 
   destroy(fromScene) {
     super.destroy(fromScene);
-    this.scene.events.off('update', this.update, this);
+    if (this.scene) {
+      this.scene.events.off('update', this.update, this);
+    }
   }
 
   setFaultAmount(val) {

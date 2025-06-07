@@ -19,6 +19,11 @@ export function initGroupManager(context, shapesData) {
     addObjectBuilder('dashedLineGraphic', dashedLineGraphicBuilder)
 }
 
+export function destroyGroupManager(){
+    groups.length = 0; // Clear the groups array
+    Object.keys(objectBuilders).forEach(key => delete objectBuilders[key]);
+}
+
 function staticBuilder(phaserContext, group, itemConfig) {
     const options = {
         group: itemConfig.group,
