@@ -3,6 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import url from '@rollup/plugin-url';
 import image from '@rollup/plugin-image';
 import json from '@rollup/plugin-json';
+import terser from '@rollup/plugin-terser';
 import { readFileSync } from 'fs';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
@@ -41,5 +42,6 @@ export default {
       destDir: 'dist/assets'
     }),
     json(),
+    terser(), // Minify output
   ],
 };
