@@ -1,5 +1,5 @@
 import { Game, Scale, AUTO } from "phaser";
-import { getFrameWidth, initRender } from "./logic/render.js";
+import {destroyRender, getFrameWidth, initRender} from "./logic/render.js";
 import { destroyCollisionManager, initCollisionManager} from "./logic/collisionManager.js";
 import { initDragManager } from "./logic/dragManager.js";
 import { initConveyorBelt } from "./objects/ConveyorBelt.js";
@@ -207,6 +207,7 @@ const ReversimMachine = {
             destroyBallGroup();
             destroyGroupManager();
             destroyCollisionManager();
+            destroyRender();
         }
     }
 };

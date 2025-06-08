@@ -24,6 +24,18 @@ export function initRender(context, _domElement, options = {}) {
     }
 }
 
+export function destroyRender() {
+    if (initRender._resizeObserver) {
+        initRender._resizeObserver.disconnect();
+        initRender._resizeObserver = null;
+    }
+    domElement = null;
+    phaserContext = null;
+    phaserOptions = null;
+    canvasBB = null;
+    zoom = null;
+}
+
 
 export function updateRender(){
     canvasBB = domElement.getBoundingClientRect();
