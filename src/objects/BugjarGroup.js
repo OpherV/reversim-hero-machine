@@ -28,16 +28,56 @@ const bugjarGroupConfig = {
         {
             "type": "paddle",
             "id": "bugjarBase",
-            "x": 149,
+            "x": 110,
             "y": 141,
-            "w": 400,
+            "w": 320,
             "h": 10
         },
         {
             "type": "bugjar",
             "id": "bugjar",
-            "x": 250,
+            "x": 200,
             "y": 100
+        },
+        {
+            "type": "dashedLineGraphic",
+            "id": "bugjar_dashedLineGraphic1",
+            "x": 210,
+            "y": 156,
+            "dashedLineConfig": {
+                lineLength: 360,
+                circleColor: 0x69c9ca
+            }
+        },
+        {
+            "type": "dashedLineGraphic",
+            "id": "bugjar_dashedLineGraphic2",
+            "x": -30,
+            "y": 156,
+            "dashedLineConfig": {
+                lineLength: 150,
+                circleRadius: 0
+            }
+        },
+        {
+            "type": "dashedLineGraphic",
+            "id": "bugjar_dashedLineGraphic3",
+            "x": 30,
+            "y": 156,
+            "dashedLineConfig": {
+                lineLength: 150,
+                circleRadius: 0
+            }
+        },
+        {
+            type: "label",
+            id: "bugjarLabel",
+            x: 70,
+            y: 40,
+            labelConfig: {
+                width: 150,
+                text: "Tech Debt"
+            }
         }
     ]
 }

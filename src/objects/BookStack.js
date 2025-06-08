@@ -8,7 +8,7 @@ const bookConfig = {
     "id": "bookGroup",
     "origin": {
         "x": 400,
-        "y": 870.3333496120235
+        "y": 910
     },
     "showHandle": true,
     "objects": [
@@ -84,7 +84,7 @@ const bookConfig = {
             "width": 124,
             "height": 19,
             "bookType": 7,
-            "title": "Man & Woman Pages"
+            "title": "Man / Woman Pages"
         },
         {
             "type": "book",
@@ -96,6 +96,16 @@ const bookConfig = {
             "height": 20,
             "bookType": 6,
             "title": "Clean-ish Code"
+        },
+        {
+            type: "label",
+            id: "bookLabel",
+            x: -40,
+            y: -30,
+            labelConfig: {
+                width: 140,
+                text: "Document"
+            }
         }
     ]
 }
@@ -120,14 +130,13 @@ function createBook(x, y, width, height, type, title) {
     // Scale the sprite to match the desired width and height
     // book.displayWidth = width;
     // book.displayHeight = height;
-    book.scale = 1.2
+    book.scale = 1.4
     // Add text to the middle of the book
     if (title) {
         const textStyle = {
-            font: '12px Montserrat',
+            font: '18px Montserrat',
             fill: '#FFFFFF',
             align: 'center',
-            wordWrap: { width: width - 10 }
         };
 
         const text = phaserContext.add.text(x, y, title, textStyle);

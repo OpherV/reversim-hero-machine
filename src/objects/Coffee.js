@@ -64,6 +64,16 @@ const coffeeConfig =
                     circleColor: 0xf26c7f
                 }
             },
+            {
+                type: "label",
+                id: "coffeeLabel",
+                x: 220,
+                y: 280,
+                labelConfig: {
+                    width: 120,
+                    text: "Deploy"
+                }
+            }
         ]
     }
 

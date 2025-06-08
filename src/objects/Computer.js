@@ -12,7 +12,7 @@ const computerConfig = {
     "id": "computerGroup",
     "showHandle": true,
     "origin": {
-        "x": 665,
+        "x": 675,
         "y": 825
     },
     "objects": [
@@ -57,6 +57,16 @@ const computerConfig = {
             "x": 180,
             "y": -30,
             "scale": 2
+        },
+        {
+            type: "label",
+            id: "computerLabel",
+            x: 350,
+            y: -60,
+            labelConfig: {
+                width: 170,
+                text: "Cloud Provider"
+            }
         }
     ]
 }

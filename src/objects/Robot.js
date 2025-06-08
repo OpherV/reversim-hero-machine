@@ -24,6 +24,16 @@ const robotConfig =
                 "id": "robotArm",
                 "x": 8,
                 "y": 170,
+            },
+            {
+                type: "label",
+                id: "coffeeLabel",
+                x: 140,
+                y: 160,
+                labelConfig: {
+                    width: 140,
+                    text: "AI Agent"
+                }
             }
         ]
     }

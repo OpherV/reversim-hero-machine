@@ -45,6 +45,16 @@ const ballGroupConfig = {
             x: 50,
             y: -10,
             depth: 120
+        },
+        {
+            type: "label",
+            id: "ballLabel",
+            x: 0,
+            y: 230,
+            labelConfig: {
+                width: 120,
+                text: "Commit"
+            }
         }
     ]
 }

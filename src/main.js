@@ -204,6 +204,7 @@ const ReversimMachine = {
             game.destroy(true);
             game = null;
 
+            destroyBallGroup();
             destroyGroupManager();
             destroyCollisionManager();
         }

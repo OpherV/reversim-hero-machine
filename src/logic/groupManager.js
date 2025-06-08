@@ -1,5 +1,6 @@
 import { addStatic } from "./utils.js";
 import { builder as dashedLineGraphicBuilder } from "../objects/DashedLineGraphic.js";
+import { builder as labelBuilder } from "../objects/Label.js";
 
 let generalContext;
 let phaserContext;
@@ -17,6 +18,7 @@ export function initGroupManager(context, shapesData) {
     addObjectBuilder('sprite', spriteBuilder)
     addObjectBuilder('static', staticBuilder)
     addObjectBuilder('dashedLineGraphic', dashedLineGraphicBuilder)
+    addObjectBuilder('label', labelBuilder);
 }
 
 export function destroyGroupManager(){
