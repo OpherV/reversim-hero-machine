@@ -54,7 +54,7 @@
     <button id="start-btn">Start Machine</button>
     <button id="stop-btn">Stop Machine</button>
     <label>
-      <input type="checkbox" id="debug-checkbox" checked> Debug Mode
+      <input type="checkbox" id="debug-checkbox"> Debug Mode
     </label>
   </div>
 
@@ -79,6 +79,7 @@
       // Initialize the machine with the container element and options
       ReversimMachine.init(gameContainer, {
         debug: debug,
+        devMode: false,
         browserTargetBoundingBox: document.getElementById('game-stage'),
         frameTopLeft: {x: 0, y: 0},
         frameBottomRight: {x: 1000, y: 1000}

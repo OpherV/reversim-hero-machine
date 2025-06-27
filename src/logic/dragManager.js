@@ -3,9 +3,11 @@ const Matter = Physics.Matter.Matter
 import {getGroupById, getMachineObjectByBody} from "./groupManager.js";
 
 let phaserContext;
+let options;
 
 export function initDragManager(context) {
     phaserContext = context.phaserContext;
+    options = context.options;
 
     registerStaticItemDrag();
     registerPhysicsItemDrag();
@@ -28,8 +30,11 @@ function registerStaticItemDrag(){
         const isCtrlPressed = pointer.event.ctrlKey || pointer.event.metaKey;
         const pointerPosition = {x: pointer.worldX, y: pointer.worldY};
         const bodiesUnderPointer = phaserContext.matter.intersectPoint(pointerPosition.x, pointerPosition.y); // Retrieve all bodies under pointer
-
-        draggableObject = bodiesUnderPointer.find(body => body.isStatic); // Pick the static one
+        draggableObject = bodiesUnderPointer.find(body => {
+            const machineObj = getMachineObjectByBody(body);
+            const canDrag = machineObj?.userDraggable || options.devMode;
+            return canDrag && body.isStatic;
+        });
         if (draggableObject) {
             pointerOffset = {
                 x: pointer.worldX - draggableObject.position.x,

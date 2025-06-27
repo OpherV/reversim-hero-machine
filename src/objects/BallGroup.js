@@ -20,6 +20,7 @@ const ballGroupConfig = {
             w: 150,
             h: 10,
             angle: PhaserMath.DegToRad(30),
+            userDraggable: true
         },
         {
             id: "paddle2",
@@ -29,6 +30,7 @@ const ballGroupConfig = {
             w: 150,
             h: 10,
             angle: PhaserMath.DegToRad(-30),
+            userDraggable: true
         },
         {
             id: "bottomChute",

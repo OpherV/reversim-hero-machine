@@ -48,6 +48,7 @@ import pincer2 from './images/pincer2.png';
 let phaserContext;
 let generalContext = {
     phaserContext: null,
+    options: null,
 }
 let shapes;
 let cordGraphics;
@@ -192,7 +193,7 @@ const ReversimMachine = {
             console.error('Invalid DOM reference provided to ReversimMachine.init');
             return;
         }
-        
+        generalContext.options = options;
         const config = createConfig(domElement, options);
         game = new Game(config);
         

@@ -18,7 +18,8 @@ const bookConfig = {
             "x": 150,
             "y": 10,
             "w": 200,
-            "h": 10
+            "h": 10,
+            "userDraggable": true,
         },
         {
             "type": "book",

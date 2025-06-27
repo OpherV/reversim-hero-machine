@@ -17,7 +17,7 @@ const coffeeConfig =
                 "x": 112.375,
                 "y": 138,
                 "sprite": "coffeeMachine",
-                "shapeName": "coffeeMachine"
+                "shapeName": "coffeeMachine",
             },
             {
                 "type": "sprite",
@@ -34,7 +34,8 @@ const coffeeConfig =
                 "y": 204,
                 "w": 370,
                 "h": 37,
-                "depth": 10
+                "depth": 10,
+                "userDraggable": true,
             },
             {
                 "type": "paddle",
