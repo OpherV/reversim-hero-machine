@@ -11,6 +11,24 @@ export function initDragManager(context) {
 
     registerStaticItemDrag();
     registerPhysicsItemDrag();
+    registerItemHover();
+}
+
+function registerItemHover(){
+    phaserContext.input.on('pointermove', (pointer) => {
+        const pointerPosition = {x: pointer.worldX, y: pointer.worldY};
+        const bodiesUnderPointer = phaserContext.matter.intersectPoint(pointerPosition.x, pointerPosition.y);
+
+        if (bodiesUnderPointer.length > 0) {
+            const machineObject = getMachineObjectByBody(bodiesUnderPointer[0]);
+            // this is an ugly hack to allow showing pointers on dynamically created objects
+            if (machineObject?.userDraggable || bodiesUnderPointer[0].userDraggable) {
+                phaserContext.input.manager.canvas.style.cursor = 'pointer';
+            }
+        } else {
+            phaserContext.input.manager.canvas.style.cursor = 'default';
+        }
+    });
 }
 
 function registerStaticItemDrag(){

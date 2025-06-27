@@ -42,7 +42,8 @@ const fanConfig = {
             "sprite": "windMachine",
             "shapeName": "windMachine",
             "x": 103.125,
-            "y": 62
+            "y": 62,
+            "userDraggable": true,
         }
     ]
 }

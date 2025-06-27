@@ -30,7 +30,8 @@ const bookConfig = {
             "width": 125,
             "height": 20,
             "bookType": 5,
-            "title": "Stack Overflow"
+            "title": "Stack Overflow",
+            "userDraggable": true,
         },
         {
             "type": "book",
@@ -41,7 +42,8 @@ const bookConfig = {
             "width": 124,
             "height": 33,
             "bookType": 3,
-            "title": "The Docs"
+            "title": "The Docs",
+            "userDraggable": true,
         },
         {
             "type": "book",
@@ -52,7 +54,8 @@ const bookConfig = {
             "width": 125,
             "height": 12,
             "bookType": 1,
-            "title": "Edge Cases"
+            "title": "Edge Cases",
+            "userDraggable": true,
         },
         {
             "type": "book",
@@ -63,7 +66,8 @@ const bookConfig = {
             "width": 112,
             "height": 33,
             "bookType": 2,
-            "title": "404"
+            "title": "404",
+            "userDraggable": true,
         },
         {
             "type": "book",
@@ -74,7 +78,8 @@ const bookConfig = {
             "width": 125,
             "height": 26,
             "bookType": 4,
-            "title": "Git Happens"
+            "title": "Git Happens",
+            "userDraggable": true,
         },
         {
             "type": "book",
@@ -85,7 +90,8 @@ const bookConfig = {
             "width": 124,
             "height": 19,
             "bookType": 7,
-            "title": "Man / Woman Pages"
+            "title": "Man / Woman Pages",
+            "userDraggable": true,
         },
         {
             "type": "book",
@@ -96,7 +102,8 @@ const bookConfig = {
             "width": 125,
             "height": 20,
             "bookType": 6,
-            "title": "Clean-ish Code"
+            "title": "Clean-ish Code",
+            "userDraggable": true,
         },
         {
             type: "label",

@@ -37,7 +37,8 @@ const bugjarGroupConfig = {
             "type": "bugjar",
             "id": "bugjar",
             "x": 200,
-            "y": 100
+            "y": 100,
+            userDraggable: true,
         },
         {
             "type": "dashedLineGraphic",

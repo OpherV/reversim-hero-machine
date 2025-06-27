@@ -22,7 +22,8 @@ const computerConfig = {
             "x": 149,
             "y": 141,
             "w": 300,
-            "h": 10
+            "h": 10,
+            "userDraggable": true,
         },
         {
             "type": "sprite",
@@ -36,8 +37,8 @@ const computerConfig = {
             "matterBodyConfig": {
                 "restitution": 0.2,    // Bounciness
                 "mass": 5,      // Mass of the computer
-            }
-
+            },
+            "userDraggable": true,
         },
         {
             "type": "sprite",
@@ -47,7 +48,8 @@ const computerConfig = {
             "x": 48,
             "y": 123,
             "displayWidth": 83,
-            "displayHeight": 31
+            "displayHeight": 31,
+            "userDraggable": true,
         },
         {
             "type": "sprite",
@@ -56,7 +58,8 @@ const computerConfig = {
             "id": "rubberDuck",
             "x": 180,
             "y": -30,
-            "scale": 2
+            "scale": 2,
+            "userDraggable": true,
         },
         {
             type: "label",

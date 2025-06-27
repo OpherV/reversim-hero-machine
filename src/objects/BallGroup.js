@@ -96,5 +96,6 @@ function createBall() {
     });
     ball.setDepth(110);
     ball.scale = 2/3;
+    ball.body.userDraggable = true; // ugly hack
 }
 

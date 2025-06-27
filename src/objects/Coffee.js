@@ -105,7 +105,7 @@ function createCoffeeCup() {
     coffeeCup.hasCoffee = false;
     coffeeCup.lastAngle = 0;
     coffeeCup.creationTime = Date.now();
-
+    coffeeCup.body.userDraggable = true; // ugly hack
     return coffeeCup;
 }
 
